@@ -1,0 +1,67 @@
+config:
+  #服务器网段
+  network_segment: 192.168.10
+  io_module:
+    ip: 192.168.10.213
+    port: 502
+    interval: 2000
+  bgm: /home/anytec/videoShare/test.mp3
+video:
+  #滑梯各段视频保存路径
+  path: /home/anytec/videoShare/slideway/
+  #滑梯合成视频保存路径
+  save: /home/anytec/videoShare/composite/generateVideo/
+  #体验区视频保存路径
+  areaVideoPath: /home/anytec/videoShare/videoArea/
+  #水上滑梯摄像头Ip地址
+  bumperCarCameraIps: 192.168.10.214,192.168.10.215
+  toyCarCameraIp: 192.168.10.214
+  arAreaCameraIp: 192.168.10.215
+  #体验区视频最大拍摄时间（s）
+  areaVideoMaxTime: 15000
+  #近景视频
+  close:
+  #拍摄时长
+    duration: 2000
+  #延迟拍摄时间
+    delay: 2000
+  #放慢处理后的视频帧数
+    fps: 10
+  #远景视频
+  far:
+  #拍摄时长
+    duration: 6000
+  #落水前视频
+    first:
+  #开始拍摄时间
+      start: 00:00:00
+  #拍摄时长（s）
+      duration: 00:00:2.2
+  #落水后视频
+    second:
+  #开始拍摄时间
+      start: 00:00:4.0
+  #拍摄时长
+      duration: 00:00:3
+camera:
+  #近景摄像机
+  close:
+    ip: 192.168.10.214
+    username: admin
+    password: n-tech123
+    port: 8000
+  #远景摄像机
+  far:
+    ip: 192.168.10.228
+    username: admin
+    password: n-tech123
+    port: 8000
+  area:
+    username: admin
+    password: n-tech123
+    port: 8000
+place:
+  waterSlide: waterSlide
+  bumperCar: bumperCar
+  toyCar: toyCar
+  arArea: arArea
