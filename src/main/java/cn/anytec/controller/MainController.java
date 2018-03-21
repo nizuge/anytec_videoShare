@@ -48,7 +48,14 @@ public class MainController{
     @ResponseBody
     public String getVideoList(@RequestParam("id")String visitorId,@RequestParam("location")String place,HttpServletResponse response){
         logger.info("接口调用：/anytec/videos");
+        logger.info("参数1：id="+visitorId);
+        logger.info("参数2：location="+place);
         Map<String,Object> resultMap = new HashMap<>();
+        if(!expZoneService.locationCheck(place)){
+            resultMap.put("code","bad location");
+            response.setStatus(400);
+            return new JSONObject(resultMap).toJSONString();
+        }
         resultMap.put("location",place);
         resultMap.put("id",visitorId);
         List<String> videoUrlList = mongoDB.getVideoUrlList(visitorId,place);
@@ -57,11 +64,8 @@ public class MainController{
         }else {
             resultMap.put("videos",null);
         }
-
         return new JSONObject(resultMap).toJSONString();
     }
-
-
 
     //================ 体验区 ===================
     //添加游客Id
@@ -69,16 +73,16 @@ public class MainController{
     @ResponseBody
     public String addVisitorId(@RequestParam("id")String visitorId,@RequestParam("location")String place,HttpServletResponse response){
         logger.info("接口调用：/anytec/visitor/add");
+        logger.info("参数1：id="+visitorId);
+        logger.info("参数2：location="+place);
         Map<String,Object> resultMap = new HashMap<>();
-        String result =expZoneService.addVisitorId(visitorId,place);
-        if(result.equals("errorPlace")){
+
+        if(expZoneService.addVisitorId(visitorId,place)){
+            resultMap.put("code","success");
+        }else {
             response.setStatus(400);
             resultMap.put("code","bad location");
         }
-        if(place.equals(generalConfig.getWaterSlide())){
-            mongoDB.addVisitorId(visitorId,place);
-        }
-        resultMap.put("code","success");
         return new JSONObject(resultMap).toJSONString();
     }
 
@@ -87,8 +91,11 @@ public class MainController{
     @ResponseBody
     public String removeVisitorId(@RequestParam("id")String visitorId,@RequestParam("location")String place,HttpServletResponse response){
         logger.info("接口调用：/anytec/visitor/remove");
+        logger.info("参数1：id="+visitorId);
+        logger.info("参数2：location="+place);
         Map<String,Object> resultMap = new HashMap<>();
-        if(expZoneService.removeVisitorId(visitorId,place).equals("Success")){
+
+        if(expZoneService.removeVisitorId(visitorId,place)){
             resultMap.put("code","success");
         }else {
             response.setStatus(400);
@@ -102,8 +109,10 @@ public class MainController{
     @ResponseBody
     public String clearVisitorIds(@RequestParam("location")String place,HttpServletResponse response){
         logger.info("接口调用：/anytec/visitors/clear");
+        logger.info("参数1：location="+place);
         Map<String,Object> resultMap = new HashMap<>();
-        if(expZoneService.clearVisitorIds(place).equals("Success")){
+
+        if(expZoneService.clearVisitorIds(place)){
             resultMap.put("code","success");
         }else {
             response.setStatus(400);
@@ -119,7 +128,13 @@ public class MainController{
     @ResponseBody
     public String startAreaVideo(@RequestParam("location")String place,HttpServletResponse response){
         logger.info("接口调用：/anytec/recording/start");
+        logger.info("参数1：location="+place);
         Map<String,Object> resultMap = new HashMap<>();
+        if(!expZoneService.locationCheck(place)){
+            resultMap.put("code","bad location");
+            response.setStatus(400);
+            return new JSONObject(resultMap).toJSONString();
+        }
         List<String> visitorIdList =expZoneService.getVisitorIdList(place);
         if(visitorIdList.size()==0){
             response.setStatus(400);
@@ -128,18 +143,16 @@ public class MainController{
         }
         if(expZoneService.saveAreaCamera(place)){
             resultMap.put("code","success");
-        }else {
-            response.setStatus(400);
-            resultMap.put("code","failed");
         }
         return new JSONObject(resultMap).toJSONString();
     }
 
     //================ 滑梯区 ===================
-    @RequestMapping(value = "/anytec/slideway/register",method = RequestMethod.POST,produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/anytec/waterslide/register",method = RequestMethod.POST,produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String slidewayRegister(@RequestParam("id")String visitorId,HttpServletResponse response){
-        logger.info("接口调用：/anytec/slideway/register");
+        logger.info("接口调用：/anytec/waterslide/register");
+        logger.info("参数1：id="+visitorId);
         Map<String,String> resultMap = new HashMap<>();
         slideService.setSlideId(visitorId);
         resultMap.put("ID",slideService.getSlideId());

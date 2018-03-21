@@ -24,9 +24,9 @@ public class MVCConfiguration extends WebMvcConfigurerAdapter {
         //registry.addResourceHandler("/static/**").addResourceLocations("classpath:/source/");
         //绝对路径
         registry.addResourceHandler("/anytec/videos/**").addResourceLocations("file:"+ config.getVideoSavePath());
-        super.addResourceHandlers(registry);
-        //绝对路径
         registry.addResourceHandler("/anytec/areaVideos/**").addResourceLocations("file:"+ config.getAreaVideoPath());
+        //BGM映射
+        registry.addResourceHandler("/anytec/bgm/**").addResourceLocations("file:"+config.getBgm());
         super.addResourceHandlers(registry);
     }
 }

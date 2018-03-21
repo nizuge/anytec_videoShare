@@ -42,7 +42,7 @@ public class ExpZoneService {
     MongoDB mongoDB;
 
     //添加游客Id
-    public String addVisitorId(String visitorId, String place) {
+    public boolean addVisitorId(String visitorId, String place) {
         if (place.equals(config.getBumperCar())) {
             bumperCarVisitorIdList.add(visitorId);
         } else if (place.equals(config.getToyCar())) {
@@ -50,13 +50,13 @@ public class ExpZoneService {
         } else if (place.equals(config.getArArea())) {
             arAreaVisitorIdList.add(visitorId);
         } else {
-            return "errorPlace";
+            return false;
         }
-        return "Success";
+        return true;
     }
 
     //移除游客Id
-    public String removeVisitorId(String visitorId, String place) {
+    public boolean removeVisitorId(String visitorId, String place) {
         if (place.equals(config.getBumperCar())) {
             if (bumperCarVisitorIdList.size() > 0) {
                 bumperCarVisitorIdList.remove(visitorId);
@@ -70,25 +70,23 @@ public class ExpZoneService {
                 arAreaVisitorIdList.remove(visitorId);
             }
         } else {
-            return "errorPlace";
+            return false;
         }
-        return "Success";
+        return true;
     }
 
     //清空游客Ids
-    public String clearVisitorIds(String place) {
-        if (place.equals(config.getWaterSlide())) {
-
-        } else if (place.equals(config.getBumperCar())) {
+    public boolean clearVisitorIds(String place) {
+        if (place.equals(config.getBumperCar())) {
             bumperCarVisitorIdList.clear();
         } else if (place.equals(config.getToyCar())) {
             toyCarVisitorIdList.clear();
         } else if (place.equals(config.getArArea())) {
             arAreaVisitorIdList.clear();
         } else {
-            return "errorPlace";
+            return false;
         }
-        return "Success";
+        return true;
     }
 
     //返回游客IdList
@@ -104,8 +102,18 @@ public class ExpZoneService {
         }
     }
 
+    //验证location
+    public boolean locationCheck(String location){
+        if (location.equals(config.getBumperCar())||location.equals(config.getToyCar())||location.equals(config.getArArea())) {
+            return true;
+        }
+        return false;
+    }
+
+
     //添加视频路径
     public String addAVideoPath(String path, String place) {
+
         if (place.equals(config.getBumperCar())) {
             bumperCarVideoPathList.add(path);
         } else if (place.equals(config.getToyCar())) {
