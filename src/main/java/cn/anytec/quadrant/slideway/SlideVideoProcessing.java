@@ -84,7 +84,7 @@ public class SlideVideoProcessing implements Runnable{
                     if(tmpVideosName == null||tmpVideosName.length != 2)
                         continue;
                     for(String tmpVideoName:tmpVideosName){
-                        if(!tmpVideoName.contains("temp"))
+                        if(!tmpVideoName.contains("tmp"))
                             continue d1;
                     }
                     //开始处理视频
@@ -94,7 +94,7 @@ public class SlideVideoProcessing implements Runnable{
                     //第一步：将临时的temp文件编码为MP4视频文件并删除临时文件
                     for(File tmpVideo : customer.listFiles()){
                         String tmpToMp4;
-                        if(tmpVideo.getName().equals("close.temp")){
+                        if(tmpVideo.exists() && tmpVideo.getName().equals("close.tmp")){
                             tmpToMp4 = "close.mp4";
                         }else {
                             tmpToMp4 = "far.mp4";
@@ -269,62 +269,69 @@ public class SlideVideoProcessing implements Runnable{
                         params.put("Action","GetPlayInfo");
                         params.put("VideoId",videoId);
                         params.put("Formats","mp4");
-                        Thread.sleep(4000);
+                        Thread.sleep(3000);
                         int getPlayInfoTimes = 0;
-                        while(getPlayInfoTimes < 4){
+                        JSONObject reply = null;
+                        while(getPlayInfoTimes < 8) {
                             getPlayInfoTimes++;
                             try {
-                                JSONObject reply = JSONObject.parseObject(vodAPI.requestAPI(params));
-                                if(reply != null && reply.containsKey("PlayInfoList")){
-                                    JSONArray aliVideoList = reply.getJSONObject("PlayInfoList").getJSONArray("PlayInfo");
-                                    logger.info("视频数量："+aliVideoList.size());
-                                    for (int i = 0; i < aliVideoList.size(); i++) {
-                                        JSONObject aliVideo = aliVideoList.getJSONObject(i);
-                                        String format = aliVideo.getString("Format");
-                                        logger.info(i+1+"--视频格式："+format);
-                                        String videoPlayUrl = aliVideo.getString("PlayURL");
-                                        logger.info(i+1+"--视频URL："+videoPlayUrl);
-                                        HttpResponse httpResponse;
-                                        HttpEntity entity;
-                                        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-                                        multipartEntityBuilder.addTextBody("url",videoPlayUrl);
-                                        logger.info("炫马接口 —— url : "+videoPlayUrl);
-                                        multipartEntityBuilder.addTextBody("user_id",customer.getName());
-                                        logger.info("炫马接口 —— user_id : "+customer.getName());
-                                        multipartEntityBuilder.addTextBody("location",config.getWaterSlide());
-                                        logger.info("炫马接口 —— location : "+config.getWaterSlide());
-                                        entity = multipartEntityBuilder.build();
-                                        try {
-                                            httpResponse = Request.Post(config.getXuanma_add_video_url())
-                                                    .connectTimeout(10000)
-                                                    .socketTimeout(30000)
-                                                    .body(entity)
-                                                    .execute().returnResponse();
-                                            JSONObject xmreply = JSONObject.parseObject(EntityUtils.toString(httpResponse.getEntity()));
-                                            if(xmreply != null && xmreply.getInteger("code")==100){
-                                                logger.info(" 游客"+customer.getName()+"视频分享完成");
-                                                break ;
-                                            }else {
-                                                logger.error("请求炫马视频添加接口失败");
-                                            }
-                                        } catch (ClientProtocolException e) {
-                                            e.printStackTrace();
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }
-                            }catch (Exception e){
+                                reply = JSONObject.parseObject(vodAPI.requestAPI(params));
+                                break ;
+                            } catch (Exception e) {
                                 logger.error("获取阿里云视频点播地址时失败,等待再次请求");
                                 Thread.sleep(1500);
-                                if(getPlayInfoTimes == 4){
-                                    logger.error("获取阿里云视频点播地址时失败:"+e.getMessage());
+                                if (getPlayInfoTimes == 8) {
+                                    logger.error("获取阿里云视频点播地址时失败:" + e.getMessage());
+                                    break d1;
                                 }
                                 e.printStackTrace();
                             }
                         }
+                        if(reply != null && reply.containsKey("PlayInfoList")){
+                            JSONArray aliVideoList = reply.getJSONObject("PlayInfoList").getJSONArray("PlayInfo");
+                            logger.info("视频数量："+aliVideoList.size());
+                            for (int i = 0; i < aliVideoList.size(); i++) {
+                                JSONObject aliVideo = aliVideoList.getJSONObject(i);
+                                String format = aliVideo.getString("Format");
+                                logger.info(i+1+"--视频格式："+format);
+                                String videoPlayUrl = aliVideo.getString("PlayURL");
+                                logger.info(i+1+"--视频URL："+videoPlayUrl);
+                                HttpResponse httpResponse;
+                                HttpEntity entity;
+                                MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+                                multipartEntityBuilder.addTextBody("url",videoPlayUrl);
+                                logger.info("炫马接口 —— url : "+videoPlayUrl);
+                                multipartEntityBuilder.addTextBody("user_id",customer.getName());
+                                logger.info("炫马接口 —— user_id : "+customer.getName());
+                                multipartEntityBuilder.addTextBody("location",config.getWaterSlide());
+                                logger.info("炫马接口 —— location : "+config.getWaterSlide());
+                                entity = multipartEntityBuilder.build();
+                                try {
+                                    httpResponse = Request.Post(config.getXuanma_add_video_url())
+                                            .connectTimeout(10000)
+                                            .socketTimeout(30000)
+                                            .body(entity)
+                                            .execute().returnResponse();
+                                    JSONObject xmreply = JSONObject.parseObject(EntityUtils.toString(httpResponse.getEntity()));
+                                    if(xmreply != null && xmreply.getInteger("code")==100){
+                                        logger.info(" 游客"+customer.getName()+"视频分享完成");
+                                    }else {
+                                        logger.error("请求炫马视频添加接口失败,user_id="+customer.getName()+",location="+config.getWaterSlide()+",url="+videoPlayUrl);
+                                    }
+                                } catch (ClientProtocolException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
                     }else {
-                        logger.error("上传视频到阿里云失败，视频本地地址:"+finalVideo.getAbsolutePath());
+                        if(config.isLocal_save()){
+                            logger.error("上传视频到阿里云失败,视频本地地址:"+finalVideo.getAbsolutePath());
+                        }else {
+                            logger.error("上传视频到阿里云失败,游客id:"+customer.getName());
+                        }
                         continue;
                     }
                 }
