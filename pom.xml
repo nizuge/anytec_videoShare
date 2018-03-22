@@ -49,6 +49,109 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/jave-2.0.jar</systemPath>
         </dependency>
+        <!--============aliyun video upload =============-->
+        <dependency>
+            <groupId>aliyun</groupId>
+            <artifactId>upload</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/aliyun-java-vod-upload-1.1.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>aliyun</groupId>
+            <artifactId>sdk_core</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/aliyun-java-sdk-core-3.2.2.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>aliyun</groupId>
+            <artifactId>sdk_vod</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/aliyun-java-sdk-vod-2.1.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>aliyun</groupId>
+            <artifactId>fastJson</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/fastjson-1.2.28.jar</systemPath>
+        </dependency>
+        <dependency>
+        <groupId>aliyun</groupId>
+        <artifactId>sdk_oss</artifactId>
+        <version>1.0</version>
+        <scope>system</scope>
+        <systemPath>${project.basedir}/lib/aliyun-sdk-oss-2.6.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons</groupId>
+            <artifactId>beanutils</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-beanutils-1.8.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons</groupId>
+            <artifactId>codec</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-codec-1.9.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons</groupId>
+            <artifactId>collections</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-collections-3.2.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>aliyun</groupId>
+            <artifactId>ezmorph</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/ezmorph-1.0.6.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons</groupId>
+            <artifactId>codec</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-codec-1.9.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons</groupId>
+            <artifactId>lang</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-lang-2.5.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>aliyun</groupId>
+            <artifactId>jdom</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jdom-1.1.jar</systemPath>
+        </dependency>
+
+        <!--============ alihttp ================-->
+        <dependency>
+            <groupId>http</groupId>
+            <artifactId>core</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/httpcore-4.4.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>http</groupId>
+            <artifactId>client</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/httpclient-4.4.1.jar</systemPath>
+        </dependency>
+
+
         <!--===========================================-->
         <!--===============spring boot=================-->
         <dependency>
@@ -141,6 +244,23 @@
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
             <scope>provided</scope>
+        </dependency>
+        <!--===========================================-->
+        <!--==================HTTP=====================-->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>fluent-hc</artifactId>
+            <version>4.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.5.3</version>
         </dependency>
         <!--===========================================-->
         <!--===================Json====================-->

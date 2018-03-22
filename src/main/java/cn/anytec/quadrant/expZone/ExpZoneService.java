@@ -160,17 +160,23 @@ public class ExpZoneService {
                     return false;
                 }
             }
-            insertAreaVideoPath(place);
+            if(config.isDb_insert()){
+                insertAreaVideoPath(place);
+            }
             return true;
         } else if (place.equals(config.getToyCar())) {
             if(loginAndPreview(toyCarDevice, place)){
-                insertAreaVideoPath(place);
+                if(config.isDb_insert()){
+                    insertAreaVideoPath(place);
+                }
                 return true;
             }
 
         } else if (place.equals(config.getArArea())) {
             if(loginAndPreview(arAreaDevice, place)){
-                insertAreaVideoPath(place);
+                if(config.isDb_insert()){
+                    insertAreaVideoPath(place);
+                }
                 return true;
             }
         }

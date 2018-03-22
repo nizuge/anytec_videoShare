@@ -6,6 +6,13 @@ config:
     port: 502
     interval: 2000
   bgm: /home/anytec/videoShare/test.mp3
+  local_save: true
+  db_insert: false
+xuanma:
+  add_video: http://wechat.xuanma.tech/index/deviceapi/add_video
+aliyun:
+  accessKeyId: HA3Dj8EUaJ6ODtEg
+  accessKeySecret: ARmCIra7FCWl8LGAAxG7KOVAzZzd6D
 video:
   #滑梯各段视频保存路径
   path: /home/anytec/videoShare/slideway/

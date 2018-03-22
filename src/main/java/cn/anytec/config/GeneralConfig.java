@@ -19,7 +19,11 @@ public class GeneralConfig {
     private short getIo_module_port;
     @Value("${config.io_module.interval}")
     private short getIo_module_interval;
-
+    @Value("${config.local_save}")
+    private boolean local_save;
+    @Value("${config.db_insert}")
+    private boolean db_insert;
+    //camera
     @Value("${camera.close.ip}")
     private String closeCameraIp;
     @Value("${camera.close.username}")
@@ -42,6 +46,7 @@ public class GeneralConfig {
     private String areaCameraPassword;
     @Value("${camera.area.port}")
     private short areaCameraPort;
+    //video
     @Value("${video.path}")
     private String videoContext;
     @Value("${video.areaVideoPath}")
@@ -80,6 +85,16 @@ public class GeneralConfig {
     private String toyCar;
     @Value("${place.arArea}")
     private String arArea;
+    //aliyun
+    @Value("${aliyun.accessKeyId}")
+    private String accessKeyId;
+    @Value("${aliyun.accessKeySecret}")
+    private String accessKeySecret;
+    //xuanma
+    @Value("${xuanma.add_video}")
+    private String xuanma_add_video_url;
+
+
 
     public String getNetwork_segment() {
         return network_segment;
@@ -226,6 +241,27 @@ public class GeneralConfig {
     public String getArAreaCameraIp() {
         return arAreaCameraIp;
     }
+
+    public String getAccessKeyId() {
+        return accessKeyId;
+    }
+
+    public String getAccessKeySecret() {
+        return accessKeySecret;
+    }
+
+    public String getXuanma_add_video_url() {
+        return xuanma_add_video_url;
+    }
+
+    public boolean isLocal_save() {
+        return local_save;
+    }
+
+    public boolean isDb_insert() {
+        return db_insert;
+    }
 }
+
 
 

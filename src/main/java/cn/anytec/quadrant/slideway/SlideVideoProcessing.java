@@ -1,10 +1,23 @@
 package cn.anytec.quadrant.slideway;
 
+import cn.anytec.aliyun.vod.VodAPI;
+import cn.anytec.aliyun.vod.VodUpload;
 import cn.anytec.config.GeneralConfig;
 import cn.anytec.config.SpringBootListener;
 import cn.anytec.ffmpeg.FFMPEGService;
 import cn.anytec.mongo.MongoDBService;
 import cn.anytec.util.Utils;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.aliyun.vod.upload.resp.UploadURLStreamResponse;
+import com.aliyun.vod.upload.resp.UploadVideoResponse;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +25,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class SlideVideoProcessing implements Runnable{
@@ -27,6 +42,10 @@ public class SlideVideoProcessing implements Runnable{
     SpringBootListener listener;
     @Autowired
     FFMPEGService ffmpegService;
+    @Autowired
+    VodUpload vodUpload;
+    @Autowired
+    VodAPI vodAPI;
 
     /**
      * 目录及文件创建，视频处理
@@ -225,14 +244,89 @@ public class SlideVideoProcessing implements Runnable{
                             }
                         }
                     }
-                    StringBuilder url = new StringBuilder("http://")
+                    if(!Utils.clearDir(customer)){
+                        logger.error("删除游客"+customer.getName()+"视频处理文件夹失败");
+                    }
+                    logger.info("========== 视频生成完毕 ==========");
+                   /* StringBuilder url = new StringBuilder("http://")
                             .append(listener.getHostIP()).append(":").append(listener.getPort())
                             .append("/anytec/videos/").append(customer.getName())
-                            .append(File.separator).append(videoName);
-                    List<String> urllist = new ArrayList<>();
+                            .append(File.separator).append(videoName);*/
+                    /*List<String> urllist = new ArrayList<>();
                     urllist.add(url.toString());
-                    mongoDB.saveVideoUrlList(customer.getName(),config.getWaterSlide(),urllist);
-                    logger.info("=========== 完成 ===========");
+                    mongoDB.saveVideoUrlList(customer.getName(),config.getWaterSlide(),urllist);*/
+                    logger.info("开始视频上传");
+                    UploadVideoResponse response = vodUpload.uploadVideo(customer.getName()+"——"+System.currentTimeMillis(),finalVideo.getAbsolutePath(),null,null,null,null,null,null);
+                    if(response.isSuccess()){
+                        logger.info("视频上传成功");
+                        if(!config.isLocal_save()){
+                            if( !Utils.clearDir(finalVideo.getParentFile())){
+                                logger.error("删除源视频失败");
+                            }
+                        }
+                        String videoId = response.getVideoId();
+                        Map<String,String> params = new HashMap<>();
+                        params.put("Action","GetPlayInfo");
+                        params.put("VideoId",videoId);
+                        params.put("Formats","mp4");
+                        Thread.sleep(4000);
+                        int getPlayInfoTimes = 0;
+                        while(getPlayInfoTimes < 4){
+                            getPlayInfoTimes++;
+                            try {
+                                JSONObject reply = JSONObject.parseObject(vodAPI.requestAPI(params));
+                                if(reply != null && reply.containsKey("PlayInfoList")){
+                                    JSONArray aliVideoList = reply.getJSONObject("PlayInfoList").getJSONArray("PlayInfo");
+                                    logger.info("视频数量："+aliVideoList.size());
+                                    for (int i = 0; i < aliVideoList.size(); i++) {
+                                        JSONObject aliVideo = aliVideoList.getJSONObject(i);
+                                        String format = aliVideo.getString("Format");
+                                        logger.info(i+1+"--视频格式："+format);
+                                        String videoPlayUrl = aliVideo.getString("PlayURL");
+                                        logger.info(i+1+"--视频URL："+videoPlayUrl);
+                                        HttpResponse httpResponse;
+                                        HttpEntity entity;
+                                        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+                                        multipartEntityBuilder.addTextBody("url",videoPlayUrl);
+                                        logger.info("炫马接口 —— url : "+videoPlayUrl);
+                                        multipartEntityBuilder.addTextBody("user_id",customer.getName());
+                                        logger.info("炫马接口 —— user_id : "+customer.getName());
+                                        multipartEntityBuilder.addTextBody("location",config.getWaterSlide());
+                                        logger.info("炫马接口 —— location : "+config.getWaterSlide());
+                                        entity = multipartEntityBuilder.build();
+                                        try {
+                                            httpResponse = Request.Post(config.getXuanma_add_video_url())
+                                                    .connectTimeout(10000)
+                                                    .socketTimeout(30000)
+                                                    .body(entity)
+                                                    .execute().returnResponse();
+                                            JSONObject xmreply = JSONObject.parseObject(EntityUtils.toString(httpResponse.getEntity()));
+                                            if(xmreply != null && xmreply.getInteger("code")==100){
+                                                logger.info(" 游客"+customer.getName()+"视频分享完成");
+                                                break ;
+                                            }else {
+                                                logger.error("请求炫马视频添加接口失败");
+                                            }
+                                        } catch (ClientProtocolException e) {
+                                            e.printStackTrace();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }catch (Exception e){
+                                logger.error("获取阿里云视频点播地址时失败,等待再次请求");
+                                Thread.sleep(1500);
+                                if(getPlayInfoTimes == 4){
+                                    logger.error("获取阿里云视频点播地址时失败:"+e.getMessage());
+                                }
+                                e.printStackTrace();
+                            }
+                        }
+                    }else {
+                        logger.error("上传视频到阿里云失败，视频本地地址:"+finalVideo.getAbsolutePath());
+                        continue;
+                    }
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -242,8 +336,6 @@ public class SlideVideoProcessing implements Runnable{
                     finalVideo.delete();
                 e.printStackTrace();
             }
-
         }
-
     }
 }

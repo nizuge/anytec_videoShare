@@ -1,23 +1,24 @@
 package cn.anytec.controller;
 
+import cn.anytec.aliyun.vod.VodAPI;
+import cn.anytec.aliyun.vod.VodUpload;
 import cn.anytec.config.GeneralConfig;
 
 import cn.anytec.ffmpeg.FFMPEGService;
 import cn.anytec.ffmpeg.FewMediaInfo;
 import cn.anytec.mongo.MongoDBService;
 import cn.anytec.quadrant.expZone.ExpZoneService;
-import cn.anytec.quadrant.hcService.HCSDKHandler;
 import cn.anytec.quadrant.slideway.SlideService;
 import cn.anytec.util.Utils;
-import org.json.simple.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.aliyun.vod.upload.resp.UploadVideoResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +43,10 @@ public class MainController{
     SlideService slideService;
     @Autowired
     ExpZoneService expZoneService;
+    @Autowired
+    VodAPI vodAPI;
+    @Autowired
+    VodUpload vodUpload;
 
     //根据Id和地点获取视频地址
     @RequestMapping(value = "/anytec/videos",method = RequestMethod.GET,produces = "application/json;charset=UTF-8")
@@ -51,6 +56,11 @@ public class MainController{
         logger.info("参数1：id="+visitorId);
         logger.info("参数2：location="+place);
         Map<String,Object> resultMap = new HashMap<>();
+        if(!generalConfig.isDb_insert()){
+            resultMap.put("code","database disabled");
+            response.setStatus(400);
+            return new JSONObject(resultMap).toJSONString();
+        }
         if(!expZoneService.locationCheck(place)){
             resultMap.put("code","bad location");
             response.setStatus(400);
@@ -153,7 +163,7 @@ public class MainController{
     public String slidewayRegister(@RequestParam("id")String visitorId,HttpServletResponse response){
         logger.info("接口调用：/anytec/waterslide/register");
         logger.info("参数1：id="+visitorId);
-        Map<String,String> resultMap = new HashMap<>();
+        Map<String,Object> resultMap = new HashMap<>();
         slideService.setSlideId(visitorId);
         resultMap.put("ID",slideService.getSlideId());
         return new JSONObject(resultMap).toJSONString();
@@ -163,7 +173,7 @@ public class MainController{
     @ResponseBody
     public String updateBGM(@RequestParam("bgm")MultipartFile audio, HttpServletResponse response){
         logger.info("接口调用：/anytec/bgm/update");
-        Map<String,String> reply = new HashMap<>();
+        Map<String,Object> reply = new HashMap<>();
         File file = new File(generalConfig.getBgm());
         byte[] bakBGM = null;
         InputStream inputStream = null;
@@ -207,6 +217,81 @@ public class MainController{
             }
         }
     }
+    @RequestMapping(value = "/vod/list")
+    @ResponseBody
+    public String getList(@RequestHeader("Authorization")String keysecret){
+        if(keysecret == null || !keysecret.equals(generalConfig.getAccessKeySecret())){
+            return "{\"code\":\"bad Token\"}";
+        }
+        Map<String,String> params = new HashMap<>();
+        params.put("Action","GetVideoList");
+        try {
+            return vodAPI.requestAPI(params);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "{\"code\":\"error\"}";
+    }
 
+    @RequestMapping(value = "/vod/deleteAll")
+    @ResponseBody
+    public String deleteAll(@RequestHeader("Authorization")String keysecret){
+        if(keysecret == null || !keysecret.equals(generalConfig.getAccessKeySecret())){
+            return "{\"code\":\"bad Token\"}";
+        }
+        Map<String,String> params = new HashMap<>();
+        params.put("Action","GetVideoList");
+        try {
+            String list =  vodAPI.requestAPI(params);
+            JSONObject listJson = JSONObject.parseObject(list);
+            JSONArray array = listJson.getJSONObject("VideoList").getJSONArray("Video");
+            StringBuilder deletes = new StringBuilder();
+            for (int i = 0; i <array.size() ; i++) {
+                String id = array.getJSONObject(i).getString("VideoId");
+                deletes.append(id);
+                if(i != array.size()-1)
+                    deletes.append(",");
+            }
+            Map<String,String> deleteParams = new HashMap<>();
+            deleteParams.put("Action","DeleteVideo");
+            deleteParams.put("VideoIds",deletes.toString());
+            return vodAPI.requestAPI(deleteParams);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "{\"code\":\"error\"}";
+    }
+
+    @RequestMapping(value = "/vod/upload")
+    @ResponseBody
+    public String upload(@RequestHeader("Authorization")String keysecret, @RequestParam("filename")String filename){
+        if(keysecret == null || !keysecret.equals(generalConfig.getAccessKeySecret())){
+            return "{\"code\":\"bad Token\"}";
+        }
+        UploadVideoResponse response = vodUpload.uploadVideo("test",filename,null,null,null,null,null,null);
+        if(response.isSuccess()){
+            return "{\"VideoId\":\""+response.getVideoId()+"\"}";
+        }else {
+            return "{\"code\":\"error\"}";
+        }
+    }
+
+    @RequestMapping(value = "/vod/getVideoInfo")
+    @ResponseBody
+    public String getVideoInfo(@RequestHeader("Authorization")String keysecret, @RequestParam("videoId")String id){
+        if(keysecret == null || !keysecret.equals(generalConfig.getAccessKeySecret())){
+            return "{\"code\":\"bad Token\"}";
+        }
+        Map<String,String> params = new HashMap<>();
+        params.put("Action","GetPlayInfo");
+        params.put("VideoId",id);
+        params.put("Formats","mp4");
+        try {
+            return vodAPI.requestAPI(params);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "{\"code\":\"error\"}";
+    }
 
 }
