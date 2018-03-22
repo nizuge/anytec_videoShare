@@ -48,7 +48,7 @@ public class MainController{
     @Autowired
     VodUpload vodUpload;
 
-    //根据Id和地点获取视频地址
+    //根据Id和地点获取视频地址dddd
     @RequestMapping(value = "/anytec/videos",method = RequestMethod.GET,produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String getVideoList(@RequestParam("id")String visitorId,@RequestParam("location")String place,HttpServletResponse response){
