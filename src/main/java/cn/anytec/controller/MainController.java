@@ -4,13 +4,13 @@ import cn.anytec.aliyun.vod.VodAPI;
 import cn.anytec.aliyun.vod.VodUpload;
 import cn.anytec.config.GeneralConfig;
 
+import cn.anytec.config.MyApplicationRunner;
 import cn.anytec.ffmpeg.FFMPEGService;
 import cn.anytec.ffmpeg.FewMediaInfo;
 import cn.anytec.mongo.MongoDBService;
 import cn.anytec.quadrant.expZone.ExpZoneService;
 import cn.anytec.quadrant.slideway.SlideService;
 import cn.anytec.util.Utils;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.vod.upload.resp.UploadVideoResponse;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.HashMap;
@@ -48,7 +47,7 @@ public class MainController{
     @Autowired
     VodUpload vodUpload;
 
-    //根据Id和地点获取视频地址dddd
+    //根据Id和地点获取视频地址
     @RequestMapping(value = "/anytec/videos",method = RequestMethod.GET,produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String getVideoList(@RequestParam("id")String visitorId,@RequestParam("location")String place,HttpServletResponse response){
@@ -153,6 +152,8 @@ public class MainController{
         }
         if(expZoneService.saveAreaCamera(place)){
             resultMap.put("code","success");
+        }else {
+            resultMap.put("code",place+" 摄像机开启失败");
         }
         return new JSONObject(resultMap).toJSONString();
     }
@@ -293,5 +294,6 @@ public class MainController{
         }
         return "{\"code\":\"error\"}";
     }
+
 
 }

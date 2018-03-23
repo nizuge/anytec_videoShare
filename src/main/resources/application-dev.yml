@@ -7,7 +7,7 @@ config:
     interval: 2000
   bgm: /home/anytec/videoShare/test.mp3
   local_save: true
-  db_insert: false
+  db_insert: true
 xuanma:
   add_video: http://wechat.xuanma.tech/index/deviceapi/add_video
 aliyun:
