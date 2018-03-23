@@ -16,6 +16,6 @@ public interface MongoDBService {
 //
 //    boolean addAreaVisitorId(String visitorId);
 
-    boolean saveVideoUrlList(String visitorId, String place,List<String> videoUrlList);
+    boolean saveVideoUrlList(String visitorId, String place,String videoUrlList);
 
 }

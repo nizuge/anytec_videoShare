@@ -144,32 +144,34 @@ public class MongoDB implements MongoDBService {
 
     @Override
     //视频地址入库
-    public boolean saveVideoUrlList(String visitorId, String place,List<String> videoUrlList){
+    public boolean saveVideoUrlList(String visitorId, String place,String videoUrl){
         if(place.equals(config.getWaterSlide())){
-            saveVideo(waterSlideCollection,visitorId,videoUrlList);
+            saveVideo(waterSlideCollection,visitorId,videoUrl);
             return true;
         } else if(place.equals(config.getBumperCar())){
-            saveVideo(bumperCarCollection,visitorId,videoUrlList);
+            saveVideo(bumperCarCollection,visitorId,videoUrl);
             return true;
         }else if(place.equals(config.getToyCar())){
-            saveVideo(toyCarCollection,visitorId,videoUrlList);
+            saveVideo(toyCarCollection,visitorId,videoUrl);
             return true;
         }else if(place.equals(config.getArArea())){
-            saveVideo(arAreaCollection,visitorId,videoUrlList);
+            saveVideo(arAreaCollection,visitorId,videoUrl);
             return true;
         }else {
             return false;
         }
     }
 
-    public void saveVideo(MongoCollection<Document> collection,String visitorId,List<String> videoUrlList){
+    public void saveVideo(MongoCollection<Document> collection,String visitorId,String videoUrl){
         Document document = collection.find(eq("visitor_id", visitorId)).first();
         if(document == null){
+            List<String> videoUrlList =new ArrayList<>();
+            videoUrlList.add(videoUrl);
             collection.insertOne(new Document("visitor_id",visitorId).append("videourl_list",videoUrlList));
         }
         else {
             List<String> videourl_list = (List<String>) document.get("videourl_list");
-            videourl_list.addAll(videoUrlList);
+            videourl_list.add(videoUrl);
             Document filter = new Document();
             filter.append("visitor_id", visitorId);
             Document updateDocument = new Document();
