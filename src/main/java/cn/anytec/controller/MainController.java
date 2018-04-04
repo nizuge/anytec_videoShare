@@ -4,7 +4,6 @@ import cn.anytec.aliyun.vod.VodAPI;
 import cn.anytec.aliyun.vod.VodUpload;
 import cn.anytec.config.GeneralConfig;
 
-import cn.anytec.config.MyApplicationRunner;
 import cn.anytec.ffmpeg.FFMPEGService;
 import cn.anytec.ffmpeg.FewMediaInfo;
 import cn.anytec.mongo.MongoDBService;
@@ -60,7 +59,7 @@ public class MainController{
             response.setStatus(400);
             return new JSONObject(resultMap).toJSONString();
         }
-        if(!expZoneService.locationCheck(place)){
+        if(!expZoneService.locationCheck(place) && !place.equals(generalConfig.getWaterSlide())){
             resultMap.put("code","bad location");
             response.setStatus(400);
             return new JSONObject(resultMap).toJSONString();
@@ -294,6 +293,4 @@ public class MainController{
         }
         return "{\"code\":\"error\"}";
     }
-
-
 }

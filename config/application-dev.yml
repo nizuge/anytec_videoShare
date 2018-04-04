@@ -2,20 +2,16 @@ server:
   port: 9999
 config:
   #服务器网段
-  network_segment: 192.168.0
-  #IO模块
+  network_segment: 192.168.10
   io_module:
-    ip: 192.168.0.226
+    ip: 192.168.10.213
     port: 502
-    #2s内不能连续触发
     interval: 2000
   bgm: /home/anytec/videoShare/test.mp3
   local_save: true
   db_insert: true
-#炫马接口
 xuanma:
   add_video: http://wechat.xuanma.tech/index/deviceapi/add_video
-#阿里云视频点播
 aliyun:
   accessKeyId: HA3Dj8EUaJ6ODtEg
   accessKeySecret: ARmCIra7FCWl8LGAAxG7KOVAzZzd6D
@@ -27,16 +23,16 @@ video:
   #体验区视频保存路径
   areaVideoPath: /home/anytec/videoShare/videoArea/
   #水上滑梯摄像头Ip地址
-  bumperCarCameraIps: 192.168.0.222,192.168.0.223
-  toyCarCameraIp: 192.168.0.224
-  arAreaCameraIp: 192.168.0.225
+  bumperCarCameraIps: 192.168.10.214,192.168.10.215
+  toyCarCameraIp: 192.168.10.214
+  arAreaCameraIp: 192.168.10.215
   #体验区视频最大拍摄时间（s）
   areaVideoMaxTime: 15000
   #近景视频
   close:
   #拍摄时长
     duration: 2000
-  #远景摄像头启动后延迟2s开始拍摄
+  #延迟拍摄时间
     delay: 2000
   #放慢处理后的视频帧数
     fps: 10
@@ -59,13 +55,13 @@ video:
 camera:
   #近景摄像机
   close:
-    ip: 192.168.0.220
+    ip: 192.168.10.214
     username: admin
     password: n-tech123
     port: 8000
   #远景摄像机
   far:
-    ip: 192.168.0.221
+    ip: 192.168.10.228
     username: admin
     password: n-tech123
     port: 8000

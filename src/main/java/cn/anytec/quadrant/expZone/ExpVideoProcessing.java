@@ -127,7 +127,7 @@ public class ExpVideoProcessing implements Runnable {
                                                 break;
                                             } catch (Exception e) {
                                                 logger.error("获取阿里云视频点播地址时失败,等待再次请求");
-                                                Thread.sleep(1500);
+                                                Thread.sleep(1501);
                                                 if (getPlayInfoTimes == 8) {
                                                     logger.error("获取阿里云视频点播地址时失败:" + e.getMessage());
                                                     break;

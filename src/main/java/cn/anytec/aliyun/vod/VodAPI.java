@@ -106,7 +106,6 @@ public class VodAPI {
     }
     /**
      * 参数urlEncode
-     *
      * @param value
      * @return
      */

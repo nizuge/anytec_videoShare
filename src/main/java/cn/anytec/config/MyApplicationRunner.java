@@ -18,9 +18,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,6 +30,86 @@ public class MyApplicationRunner implements ApplicationRunner {
     private static final Logger logger = LoggerFactory.getLogger(MyApplicationRunner.class);
     ExecutorService taskPool = Executors.newFixedThreadPool(3);
     private static long timeRecord = 0;
+    private static final String pro = "server:\n" +
+            "  port: 9999\n" +
+            "config:\n" +
+            "  #服务器网段\n" +
+            "  network_segment: 192.168.0\n" +
+            "  #IO模块\n" +
+            "  io_module:\n" +
+            "    ip: 192.168.0.226\n" +
+            "    port: 502\n" +
+            "    #2s内不能连续触发\n" +
+            "    interval: 2000\n" +
+            "  bgm: /home/anytec/videoShare/test.mp3\n" +
+            "  local_save: true\n" +
+            "  db_insert: true\n" +
+            "#炫马接口\n" +
+            "xuanma:\n" +
+            "  add_video: http://wechat.xuanma.tech/index/deviceapi/add_video\n" +
+            "#阿里云视频点播\n" +
+            "aliyun:\n" +
+            "  accessKeyId: HA3Dj8EUaJ6ODtEg\n" +
+            "  accessKeySecret: ARmCIra7FCWl8LGAAxG7KOVAzZzd6D\n" +
+            "video:\n" +
+            "  #滑梯各段视频保存路径\n" +
+            "  path: /home/anytec/videoShare/slideway/\n" +
+            "  #滑梯合成视频保存路径\n" +
+            "  save: /home/anytec/videoShare/composite/generateVideo/\n" +
+            "  #体验区视频保存路径\n" +
+            "  areaVideoPath: /home/anytec/videoShare/videoArea/\n" +
+            "  #水上滑梯摄像头Ip地址\n" +
+            "  bumperCarCameraIps: 192.168.0.222,192.168.0.223\n" +
+            "  toyCarCameraIp: 192.168.0.224\n" +
+            "  arAreaCameraIp: 192.168.0.225\n" +
+            "  #体验区视频最大拍摄时间（s）\n" +
+            "  areaVideoMaxTime: 15000\n" +
+            "  #近景视频\n" +
+            "  close:\n" +
+            "  #拍摄时长\n" +
+            "    duration: 2000\n" +
+            "  #远景摄像头启动后延迟2s开始拍摄\n" +
+            "    delay: 2000\n" +
+            "  #放慢处理后的视频帧数\n" +
+            "    fps: 10\n" +
+            "  #远景视频\n" +
+            "  far:\n" +
+            "  #拍摄时长\n" +
+            "    duration: 6000\n" +
+            "  #落水前视频\n" +
+            "    first:\n" +
+            "  #开始拍摄时间\n" +
+            "      start: 00:00:00\n" +
+            "  #拍摄时长（s）\n" +
+            "      duration: 00:00:2.2\n" +
+            "  #落水后视频\n" +
+            "    second:\n" +
+            "  #开始拍摄时间\n" +
+            "      start: 00:00:4.0\n" +
+            "  #拍摄时长\n" +
+            "      duration: 00:00:3\n" +
+            "camera:\n" +
+            "  #近景摄像机\n" +
+            "  close:\n" +
+            "    ip: 192.168.0.220\n" +
+            "    username: admin\n" +
+            "    password: n-tech123\n" +
+            "    port: 8000\n" +
+            "  #远景摄像机\n" +
+            "  far:\n" +
+            "    ip: 192.168.0.221\n" +
+            "    username: admin\n" +
+            "    password: n-tech123\n" +
+            "    port: 8000\n" +
+            "  area:\n" +
+            "    username: admin\n" +
+            "    password: n-tech123\n" +
+            "    port: 8000\n" +
+            "place:\n" +
+            "  waterSlide: waterSlide\n" +
+            "  bumperCar: bumperCar\n" +
+            "  toyCar: toyCar\n" +
+            "  arArea: arArea";
 
     @Autowired
     GeneralConfig config;
@@ -51,6 +129,21 @@ public class MyApplicationRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments arg) throws Exception {
+        logger.info("====== 创建配置文件 ======");
+        File ini = new File("config");
+        if(!ini.exists()){
+            if(!ini.mkdir()){
+                logger.error("检查工程根目录及配置文件");
+                System.exit(1);
+            }
+        }
+        File properties = new File(ini,"application-dev.yml");
+        if(!properties.exists()){
+            OutputStream outputStream = new FileOutputStream(properties);
+            outputStream.write(pro.getBytes());
+            outputStream.flush();
+            outputStream.close();
+        }
         logger.info("====== ffmpeg 检查 ======");
         File check = new File("/usr/bin/ffmpeg");
         if(!check.exists()){

@@ -222,6 +222,7 @@ public class SlideVideoProcessing implements Runnable{
                             byte[] anVideo = Utils.streamToByte(is);
                             if(anVideo != null){
                                 os.write(anVideo);
+                                os.flush();
                             }
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
@@ -248,13 +249,13 @@ public class SlideVideoProcessing implements Runnable{
                         logger.error("删除游客"+customer.getName()+"视频处理文件夹失败");
                     }
                     logger.info("========== 视频生成完毕 ==========");
-                   /* StringBuilder url = new StringBuilder("http://")
-                            .append(listener.getHostIP()).append(":").append(listener.getPort())
-                            .append("/anytec/videos/").append(customer.getName())
-                            .append(File.separator).append(videoName);*/
-                    /*List<String> urllist = new ArrayList<>();
-                    urllist.add(url.toString());
-                    mongoDB.saveVideoUrlList(customer.getName(),config.getWaterSlide(),urllist);*/
+                    if(config.isDb_insert()){
+                        StringBuilder url = new StringBuilder("http://")
+                                .append(listener.getHostIP()).append(":").append(listener.getPort())
+                                .append("/anytec/videos/").append(customer.getName())
+                                .append(File.separator).append(videoName);
+                        mongoDB.saveVideoUrlList(customer.getName(),config.getWaterSlide(),url.toString());
+                    }
                     logger.info("开始视频上传");
                     UploadVideoResponse response = vodUpload.uploadVideo(customer.getName()+"——"+System.currentTimeMillis(),finalVideo.getAbsolutePath(),null,null,null,null,null,null);
                     if(response.isSuccess()){
@@ -301,7 +302,9 @@ public class SlideVideoProcessing implements Runnable{
                                 MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
                                 multipartEntityBuilder.addTextBody("url",videoPlayUrl);
                                 logger.info("炫马接口 —— url : "+videoPlayUrl);
-                                multipartEntityBuilder.addTextBody("user_id",customer.getName());
+                                JSONArray userIds = new JSONArray();
+                                userIds.add(customer.getName());
+                                multipartEntityBuilder.addTextBody("user_id",userIds.toJSONString());
                                 logger.info("炫马接口 —— user_id : "+customer.getName());
                                 multipartEntityBuilder.addTextBody("location",config.getWaterSlide());
                                 logger.info("炫马接口 —— location : "+config.getWaterSlide());
@@ -312,12 +315,18 @@ public class SlideVideoProcessing implements Runnable{
                                             .socketTimeout(30000)
                                             .body(entity)
                                             .execute().returnResponse();
-                                    JSONObject xmreply = JSONObject.parseObject(EntityUtils.toString(httpResponse.getEntity()));
-                                    if(xmreply != null && xmreply.getInteger("code")==100){
-                                        logger.info(" 游客"+customer.getName()+"视频分享完成");
-                                    }else {
+                                    try {
+                                        JSONObject xmreply = JSONObject.parseObject(EntityUtils.toString(httpResponse.getEntity()));
+                                        if(xmreply != null && xmreply.getInteger("code")==100){
+                                            logger.info(" 游客"+customer.getName()+"视频分享完成");
+                                        }else {
+                                            logger.error("请求炫马视频添加接口失败,user_id="+customer.getName()+",location="+config.getWaterSlide()+",url="+videoPlayUrl);
+                                        }
+                                    }catch (Exception e){
+                                        logger.error("解析炫马接口响应json时发生错误:"+e.getMessage());
                                         logger.error("请求炫马视频添加接口失败,user_id="+customer.getName()+",location="+config.getWaterSlide()+",url="+videoPlayUrl);
                                     }
+
                                 } catch (ClientProtocolException e) {
                                     e.printStackTrace();
                                 } catch (IOException e) {
