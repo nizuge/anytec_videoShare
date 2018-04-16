@@ -2,10 +2,10 @@ server:
   port: 9999
 config:
   #服务器网段
-  network_segment: 192.168.0
+  network_segment: 172.16.5
   #IO模块
   io_module:
-    ip: 192.168.0.226
+    ip: 172.16.5.226
     port: 502
     #2s内不能连续触发
     interval: 2000
@@ -59,13 +59,13 @@ video:
 camera:
   #近景摄像机
   close:
-    ip: 192.168.0.220
+    ip: 172.16.5.220
     username: admin
     password: n-tech123
     port: 8000
   #远景摄像机
   far:
-    ip: 192.168.0.221
+    ip: 172.16.5.221
     username: admin
     password: n-tech123
     port: 8000

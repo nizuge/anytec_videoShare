@@ -55,13 +55,13 @@ public class SlideDataCallBack implements HCNetSDK.FRealDataCallBack_V30 {
         try {
             if(outputStream != null)
                 outputStream.close();
-            /*if(videoTmp.exists() && videoTmp.getName().contains("tmp")){
+            if(videoTmp.exists() && videoTmp.getName().contains("tmp")){
                 if(!videoTmp.renameTo(new File(videoTmp.getAbsolutePath().replace("tmp","temp")))){
                     logger.error("滑梯区视频临时文件写入完毕标识失败");
                 }
             }else {
                 videoTmp.delete();
-            }*/
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

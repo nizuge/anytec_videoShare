@@ -246,7 +246,7 @@ public class MyApplicationRunner implements ApplicationRunner {
      * IO模块信号解析
      * @param info
      */
-    private void parseIO(String info){
+    public void parseIO(String info){
         String DI = info.substring(16);
         long currentTime = System.currentTimeMillis();
         if(!DI.equals("0100") && currentTime-timeRecord > config.getGetIo_module_interval()){

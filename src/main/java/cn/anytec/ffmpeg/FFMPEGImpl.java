@@ -75,7 +75,7 @@ public class FFMPEGImpl implements FFMPEGService {
                 "-y",output.getAbsolutePath()
         }));
         if(output.exists()){
-            source.delete();
+            //source.delete();
             return true;
         }
         return false;

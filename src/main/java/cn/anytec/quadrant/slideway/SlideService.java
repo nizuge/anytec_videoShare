@@ -30,7 +30,12 @@ public class SlideService {
 
 
     public void notifySlide(){
+        if(slideId == null){
+            logger.info("slideID为空，不进行视频录制");
+            return;
+        }
         threadLocal.set(slideId);
+        slideId = null;
         try {
             if (!hcsdkHandler.loginCamera(farView)) {
                 logger.error("远景摄像头注册失败");

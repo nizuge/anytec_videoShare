@@ -84,7 +84,7 @@ public class SlideVideoProcessing implements Runnable{
                     if(tmpVideosName == null||tmpVideosName.length != 2)
                         continue;
                     for(String tmpVideoName:tmpVideosName){
-                        if(!tmpVideoName.contains("tmp"))
+                        if(!tmpVideoName.contains("temp"))
                             continue d1;
                     }
                     //开始处理视频
@@ -94,7 +94,7 @@ public class SlideVideoProcessing implements Runnable{
                     //第一步：将临时的temp文件编码为MP4视频文件并删除临时文件
                     for(File tmpVideo : customer.listFiles()){
                         String tmpToMp4;
-                        if(tmpVideo.exists() && tmpVideo.getName().equals("close.tmp")){
+                        if(tmpVideo.exists() && tmpVideo.getName().contains("close")){
                             tmpToMp4 = "close.mp4";
                         }else {
                             tmpToMp4 = "far.mp4";

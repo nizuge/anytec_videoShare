@@ -4,6 +4,7 @@ import cn.anytec.aliyun.vod.VodAPI;
 import cn.anytec.aliyun.vod.VodUpload;
 import cn.anytec.config.GeneralConfig;
 
+import cn.anytec.config.MyApplicationRunner;
 import cn.anytec.ffmpeg.FFMPEGService;
 import cn.anytec.ffmpeg.FewMediaInfo;
 import cn.anytec.mongo.MongoDBService;
@@ -45,6 +46,8 @@ public class MainController{
     VodAPI vodAPI;
     @Autowired
     VodUpload vodUpload;
+    @Autowired
+    MyApplicationRunner myApplicationRunner;
 
     //根据Id和地点获取视频地址
     @RequestMapping(value = "/anytec/videos",method = RequestMethod.GET,produces = "application/json;charset=UTF-8")
@@ -292,5 +295,11 @@ public class MainController{
             e.printStackTrace();
         }
         return "{\"code\":\"error\"}";
+    }
+
+    @RequestMapping(value = "/trigger")
+    @ResponseBody
+    public void trigger(){
+        myApplicationRunner.parseIO("00000000000000000101");
     }
 }
