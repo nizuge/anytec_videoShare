@@ -1,0 +1,87 @@
+server:
+  port: 8088
+config:
+  #服务器网段
+  network_segment: 172.16.5
+  #IO模块
+  io_module:
+    ip: 172.16.5.226
+    port: 502
+    #2s内不能连续触发
+    interval: 2000
+    delay: 2000
+  bgm:
+    waterSlide: /home/anytec/videoShare/waterSlide.mp3
+    bumperCar: /home/anytec/videoShare/bumperCar.mp3
+    toyCar: /home/anytec/videoShare/toyCar.mp3
+    arArea: /home/anytec/videoShare/arArea.mp3
+    path: /home/anytec/videoShare/
+  local_save: true
+  db_insert: true
+#炫马接口
+xuanma:
+  add_video: http://wechat.xuanma.tech/index/deviceapi/add_video
+  ready: 8000
+#阿里云视频点播
+aliyun:
+  accessKeyId: HA3Dj8EUaJ6ODtEg
+  accessKeySecret: ARmCIra7FCWl8LGAAxG7KOVAzZzd6D
+video:
+  #滑梯各段视频保存路径
+  path: /home/anytec/videoShare/slideway/
+  #滑梯合成视频保存路径
+  save: /home/anytec/videoShare/composite/generateVideo/
+  #体验区视频保存路径
+  areaVideoPath: /home/anytec/videoShare/videoArea/
+  #水上滑梯摄像头Ip地址
+  bumperCarCameraIps: 172.16.5.223 172.16.5.225
+  toyCarCameraIp: 172.16.5.224
+  arAreaCameraIp: 172.16.5.222
+  #体验区视频最大拍摄时间（s）
+  areaVideoMaxTime: 15000
+  #近景视频
+  close:
+  #拍摄时长
+    duration: 1000
+  #远景摄像头启动后延迟2s开始拍摄
+    delay: 1500
+  #放慢处理后的视频帧数
+    fps: 10
+  #远景视频
+  far:
+  #拍摄时长
+    duration: 4000
+  #落水前视频
+    first:
+  #开始拍摄时间
+      start: 0
+  #拍摄时长（s）
+      duration: 1.5
+  #落水后视频
+    second:
+  #开始拍摄时间
+      start: 2.5
+  #拍摄时长
+      duration: 1.5
+camera:
+  #近景摄像机
+  close:
+    ip: 192.168.10.90
+    username: admin
+    password: n-tech123
+    port: 8000
+  #远景摄像机
+  far:
+    ip: 192.168.10.64
+    username: admin
+    password: n-tech123
+    port: 8000
+  area:
+    username: admin
+    password: n-tech123
+    port: 8000
+place:
+  waterSlide: waterSlide
+  bumperCar: bumperCar
+  toyCar: toyCar
+  arArea: arArea
