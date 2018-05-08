@@ -26,10 +26,17 @@ public class SlideDataCallBack implements HCNetSDK.FRealDataCallBack_V30 {
             }
         }
         String fileName = tmpFile.getName();
-        if(fileName.equals("far.tmp")){
+        if(fileName.equals("pre.tmp")){
             if(parent.list().length != 0){
                 Arrays.stream(parent.listFiles()).forEach((child) -> {
                     child.delete();
+                });
+            }
+        }else if(fileName.equals("far.tmp")){
+            if(parent.list().length != 0){
+                Arrays.stream(parent.listFiles()).forEach((child) -> {
+                    if(!child.getName().contains("pre"))
+                        child.delete();
                 });
             }
         }

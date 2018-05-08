@@ -69,8 +69,8 @@ public class SlideVideoProcessing implements Runnable{
                 return;
             }
         }
+        File finalVideo = null;
         while (true){
-            File finalVideo = null;
             try {
                 File[] customers = file.listFiles();
                 if(customers == null || customers.length == 0){
@@ -78,12 +78,13 @@ public class SlideVideoProcessing implements Runnable{
                     continue;
                 }
                 d1:for (File customer : customers){
+                    Thread.sleep(1000);
                     if(customer.getName().equals(videoDir))
                         continue;
                     if(!customer.isDirectory())
                         continue;
                     String[] tmpVideosName = customer.list();
-                    if(tmpVideosName == null||tmpVideosName.length != 2)
+                    if(tmpVideosName == null||tmpVideosName.length != 3)
                         continue;
                     for(String tmpVideoName:tmpVideosName){
                         if(!tmpVideoName.contains("temp"))
@@ -95,12 +96,7 @@ public class SlideVideoProcessing implements Runnable{
                     File output;
                     //第一步：将临时的temp文件编码为MP4视频文件并删除临时文件
                     for(File tmpVideo : customer.listFiles()){
-                        String tmpToMp4;
-                        if(tmpVideo.exists() && tmpVideo.getName().contains("close")){
-                            tmpToMp4 = "close.mp4";
-                        }else {
-                            tmpToMp4 = "far.mp4";
-                        }
+                        String tmpToMp4 = tmpVideo.getName().replace("temp","mp4");
                         source = new File(customer,tmpVideo.getName());
                         output = new File(customer,tmpToMp4);
                         logger.info("开始生成"+tmpToMp4);
@@ -137,6 +133,8 @@ public class SlideVideoProcessing implements Runnable{
                     //合并列表
                     File concatFile1 = new File(file,"concat1.txt");
                     File concatFile2 = new File(file,"concat2.txt");
+                    //游客准备视频与滑梯部分视频合并列表
+                    File concatFile3 = new File(file,"concat3.txt");
 
                     StringBuilder concatText1 = new StringBuilder()
                             .append("file '").append(customer.getAbsolutePath()).append(File.separator).append("far1.mp4").append("'\n")
@@ -144,16 +142,23 @@ public class SlideVideoProcessing implements Runnable{
                     StringBuilder concatText2 = new StringBuilder()
                             .append("file '").append(customer.getAbsolutePath()).append(File.separator).append("merge12.mp4").append("'\n")
                             .append("file '").append(customer.getAbsolutePath()).append(File.separator).append("far2.mp4").append("'\n");
+                    StringBuilder concatText3 = new StringBuilder()
+                            .append("file '").append(customer.getAbsolutePath()).append(File.separator).append("pre.mp4").append("'\n")
+                            .append("file '").append(customer.getAbsolutePath()).append(File.separator).append("slide.mp4").append("'\n");
                     OutputStream outputStream1 = null;
                     OutputStream outputStream2 = null;
+                    OutputStream outputStream3 = null;
 
                     try {
                         outputStream1 = new FileOutputStream(concatFile1);
                         outputStream2 = new FileOutputStream(concatFile2);
+                        outputStream3 = new FileOutputStream(concatFile3);
                         outputStream1.write(concatText1.toString().getBytes());
                         outputStream2.write(concatText2.toString().getBytes());
+                        outputStream3.write(concatText3.toString().getBytes());
                         outputStream1.flush();
                         outputStream2.flush();
+                        outputStream3.flush();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -166,7 +171,9 @@ public class SlideVideoProcessing implements Runnable{
                             if(outputStream2!=null) {
                                 outputStream2.close();
                             }
-
+                            if(outputStream3!=null) {
+                                outputStream3.close();
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -180,14 +187,22 @@ public class SlideVideoProcessing implements Runnable{
                         continue;
                     }
                     //第六步：合并二三段视频
-
                     source = concatFile2;
+                    output = new File(customer,"slide.mp4");
+                    logger.info("开始合并第三段视频并生成滑梯部分完整视频");
+                    if(!ffmpegService.concatVideos(source,output,true)){
+                        logger.error("生成滑梯部分完整视频失败");
+                        continue;
+                    }
+                    //第七步：合并准备视频
+                    source = concatFile3;
                     output = new File(customer,"an.mp4");
-                    logger.info("开始合并第三段视频并生成完整视频");
+                    logger.info("开始添加游客准备视频并生成完整视频");
                     if(!ffmpegService.concatVideos(source,output,true)){
                         logger.error("生成完整视频失败");
                         continue;
                     }
+
 
                     StringBuilder location = new StringBuilder(config.getVideoSavePath())
                             .append(customer.getName());
@@ -205,6 +220,7 @@ public class SlideVideoProcessing implements Runnable{
                     finalVideo = new File(location.toString());
                     concatFile1.delete();
                     concatFile2.delete();
+                    concatFile3.delete();
                     //添加音频
                     logger.info("开始合成背景音乐");
                     if(!ffmpegService.mergeAudio(audio,video,finalVideo,true)){
@@ -240,9 +256,9 @@ public class SlideVideoProcessing implements Runnable{
                             }
                         }
                     }
-                    /*if(!Utils.clearDir(customer)){
+                    if(!Utils.clearDir(customer)){
                         logger.error("删除游客"+customer.getName()+"视频处理文件夹失败");
-                    }*/
+                    }
                     logger.info("========== 视频生成完毕 ==========");
                     if(config.isDb_insert()){
                         StringBuilder url = new StringBuilder("http://")

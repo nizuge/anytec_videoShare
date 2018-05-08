@@ -1,5 +1,5 @@
 server:
-  port: 8088
+  port: 8090
 config:
   #服务器网段
   network_segment: 172.16.5
@@ -7,8 +7,6 @@ config:
   io_module:
     ip: 172.16.5.226
     port: 502
-    #2s内不能连续触发
-    interval: 2000
     delay: 2000
   bgm:
     waterSlide: /home/anytec/videoShare/waterSlide.mp3

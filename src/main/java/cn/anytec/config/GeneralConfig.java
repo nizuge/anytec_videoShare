@@ -25,8 +25,6 @@ public class GeneralConfig {
     private String io_module_ip;
     @Value("${config.io_module.port}")
     private short getIo_module_port;
-    @Value("${config.io_module.interval}")
-    private short getIo_module_interval;
     @Value("${config.io_module.delay}")
     private long io_module_delay;
 
@@ -278,10 +276,6 @@ public class GeneralConfig {
 
     public short getGetIo_module_port() {
         return getIo_module_port;
-    }
-
-    public short getGetIo_module_interval() {
-        return getIo_module_interval;
     }
 
     public List<String> getBumperCarCameraIps() {

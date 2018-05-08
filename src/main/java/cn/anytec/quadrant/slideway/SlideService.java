@@ -21,6 +21,7 @@ public class SlideService {
     private volatile static int reFresh = 0;
     private ThreadLocal<String> slideId_threadLocal = new ThreadLocal();
     private ThreadLocal<Integer> reFresh_threadLocal = new ThreadLocal();
+    private static Thread pre_thread;
 
     private DeviceInfo gateView;
     private DeviceInfo closeView;
@@ -94,30 +95,38 @@ public class SlideService {
     }
 
     public void startGateCamera(String visitorId) {
-        try {
-            if (!hcsdkHandler.loginCamera(gateView)) {
-                logger.error("滑梯口摄像头注册失败");
-                return;
-            }
-            String contextPath = new StringBuilder(config.getVideoContext())
-                    .append(File.separator).append(visitorId).toString();
-            File visitorContext = new File(contextPath);
-            if (!visitorContext.exists()) {
-                if (!visitorContext.mkdir()) {
-                    logger.error("创建游客文件夹失败");
+        while (pre_thread != null && pre_thread.isAlive()){
+            pre_thread.interrupt();
+        }
+        pre_thread = new Thread(()->{
+            try {
+                if (!hcsdkHandler.loginCamera(gateView)) {
+                    logger.error("滑梯口摄像头注册失败");
                     return;
                 }
+                String contextPath = new StringBuilder(config.getVideoContext())
+                        .append(File.separator).append(visitorId).toString();
+                File visitorContext = new File(contextPath);
+                if (!visitorContext.exists()) {
+                    if (!visitorContext.mkdir()) {
+                        logger.error("创建游客文件夹失败");
+                        return;
+                    }
+                }
+                logger.info("开启滑梯口摄像头预览:" + gateView.getDeviceIp());
+                SlideDataCallBack preCallBack = new SlideDataCallBack(new File(visitorContext, "pre.tmp"));
+                NativeLong lRealPlayHandle_pre = hcsdkHandler.preView(gateView, preCallBack);
+                Thread.sleep(config.getGateDuration());
+                logger.info("关闭滑梯口摄像头预览:" + gateView.getDeviceIp());
+                hcsdkHandler.stopPreView(lRealPlayHandle_pre);
+                preCallBack.close();
+                preCallBack.rename();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            logger.info("开启滑梯口摄像头预览:" + gateView.getDeviceIp());
-            SlideDataCallBack preCallBack = new SlideDataCallBack(new File(visitorContext, "gate.tmp"));
-            NativeLong lRealPlayHandle_pre = hcsdkHandler.preView(gateView, preCallBack);
-            Thread.sleep(config.getGateDuration());
-            logger.info("关闭滑梯口摄像头预览:" + gateView.getDeviceIp());
-            hcsdkHandler.stopPreView(lRealPlayHandle_pre);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+        });
+        pre_thread.setDaemon(true);
+        pre_thread.start();
     }
 
     public void setGateView(DeviceInfo gateView) {
@@ -131,16 +140,6 @@ public class SlideService {
     }
     public void setSlideId(String slideId) {
         SlideService.slideId = slideId;
-      /* Thread thread = new Thread(()->{
-            try {
-                Thread.sleep(config.getXuanma_id_survival_time());
-                removeId(slideId);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        thread.setDaemon(true);
-        thread.start();*/
     }
     public String getSlideId() {return slideId;}
     public void removeId(String id){
