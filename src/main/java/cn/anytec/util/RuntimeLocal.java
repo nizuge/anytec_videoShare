@@ -49,8 +49,9 @@ public class RuntimeLocal {
 	}
 	public boolean isAlive(){
 		if(process == null)
-			return true;
+			return false;
 		return process.isAlive();
 	}
+
 
 }
