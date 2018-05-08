@@ -15,6 +15,7 @@ public class FFMPEGImpl implements FFMPEGService {
 
     private static final Logger logger = LoggerFactory.getLogger(FFMPEGImpl.class);
     private static final Encoder encoder = new Encoder(new UbuntuFFMPEGLocator());
+    private static RuntimeLocal runtimeLocal = new RuntimeLocal();
 
     @Override
     public FewMediaInfo getMediaInfo(File file) {
@@ -47,7 +48,14 @@ public class FFMPEGImpl implements FFMPEGService {
             logger.warn("输出文件已存在");
             return false;
         }
-        logger.debug(new RuntimeLocal().execute(new String[]{
+        while (runtimeLocal.isAlive()){
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        logger.debug(runtimeLocal.execute(new String[]{
                 "ffmpeg","-i",source.getAbsolutePath(),
                 "-c:v","libx264","-c:a","aac","-strict","experimental","-b:a","98k",
                 "-y",output.getAbsolutePath()
@@ -69,7 +77,14 @@ public class FFMPEGImpl implements FFMPEGService {
             logger.warn("输出文件已存在");
             return false;
         }
-        logger.debug(new RuntimeLocal().execute(new String[]{
+        while (runtimeLocal.isAlive()){
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        logger.debug(runtimeLocal.execute(new String[]{
                 "ffmpeg", "-ss",start,"-t",duration,
                 "-i",source.getAbsolutePath(),
                 "-c:v","libx264","-c:a","aac","-strict","experimental","-b:a","98k",
@@ -91,7 +106,14 @@ public class FFMPEGImpl implements FFMPEGService {
             logger.warn("输出文件已存在");
             return false;
         }
-        logger.debug(new RuntimeLocal().execute(new String[]{
+        while (runtimeLocal.isAlive()){
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        logger.debug(runtimeLocal.execute(new String[]{
                 "ffmpeg","-r",fps.toString(),
                 "-i",source.getAbsolutePath(),
                 "-strict","-2",
@@ -113,7 +135,14 @@ public class FFMPEGImpl implements FFMPEGService {
             logger.warn("输出文件已存在");
             return false;
         }
-        logger.debug(new RuntimeLocal().execute(new String[]{
+        while (runtimeLocal.isAlive()){
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        logger.debug(runtimeLocal.execute(new String[]{
                 "ffmpeg", "-f","concat","-safe","0",
                 "-i",concatFile.getAbsolutePath(),
                 "-c","copy",
@@ -143,8 +172,15 @@ public class FFMPEGImpl implements FFMPEGService {
         }
         Float videoDuration = videoInfo.getDuration();
         float audioDuration = audioInfo.getDuration();
+        while (runtimeLocal.isAlive()){
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         if(audioDuration >= videoDuration){
-            logger.debug(new RuntimeLocal().execute(new String[]{
+            logger.debug(runtimeLocal.execute(new String[]{
                     "ffmpeg","-i",video.getAbsolutePath(),
                     "-i",audio.getAbsolutePath(),
                     "-filter_complex","[1:0]apad","-shortest","-strict","-2",
@@ -159,13 +195,20 @@ public class FFMPEGImpl implements FFMPEGService {
             for (int i = 0; i < audio_replayTimes; i++) {
                 concatAudio.append("|").append(audio.getAbsolutePath());
             }
-            logger.debug(new RuntimeLocal().execute(new String[]{
+            logger.debug(runtimeLocal.execute(new String[]{
                     "ffmpeg","-i",concatAudio.toString(),
                     "-acodec","copy",
                     "-y",tmpAudio.getAbsolutePath()
             }));
+            while (runtimeLocal.isAlive()){
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             if(tmpAudio.exists()){
-                logger.debug(new RuntimeLocal().execute(new String[]{
+                logger.debug(runtimeLocal.execute(new String[]{
                         "ffmpeg","-i",video.getAbsolutePath(),
                         "-i",tmpAudio.getAbsolutePath(),
                         "-filter_complex","[1:0]apad","-shortest","-strict","-2",
