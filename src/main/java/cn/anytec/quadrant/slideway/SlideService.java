@@ -1,6 +1,7 @@
 package cn.anytec.quadrant.slideway;
 
 import cn.anytec.config.GeneralConfig;
+import cn.anytec.quadrant.expZone.ExpDataCallBack;
 import cn.anytec.quadrant.hcEntity.DeviceInfo;
 import cn.anytec.quadrant.hcService.HCSDKHandler;
 import com.sun.jna.NativeLong;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.List;
 
 @Service
 public class SlideService {
@@ -20,6 +22,7 @@ public class SlideService {
     private ThreadLocal<String> slideId_threadLocal = new ThreadLocal();
     private ThreadLocal<Integer> reFresh_threadLocal = new ThreadLocal();
 
+    private DeviceInfo gateView;
     private DeviceInfo closeView;
     private DeviceInfo farView;
 
@@ -90,7 +93,36 @@ public class SlideService {
         }
     }
 
+    public void startGateCamera(String visitorId) {
+        try {
+            if (!hcsdkHandler.loginCamera(gateView)) {
+                logger.error("滑梯口摄像头注册失败");
+                return;
+            }
+            String contextPath = new StringBuilder(config.getVideoContext())
+                    .append(File.separator).append(visitorId).toString();
+            File visitorContext = new File(contextPath);
+            if (!visitorContext.exists()) {
+                if (!visitorContext.mkdir()) {
+                    logger.error("创建游客文件夹失败");
+                    return;
+                }
+            }
+            logger.info("开启滑梯口摄像头预览:" + gateView.getDeviceIp());
+            SlideDataCallBack preCallBack = new SlideDataCallBack(new File(visitorContext, "gate.tmp"));
+            NativeLong lRealPlayHandle_pre = hcsdkHandler.preView(gateView, preCallBack);
+            Thread.sleep(config.getGateDuration());
+            logger.info("关闭滑梯口摄像头预览:" + gateView.getDeviceIp());
+            hcsdkHandler.stopPreView(lRealPlayHandle_pre);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
+    }
+
+    public void setGateView(DeviceInfo gateView) {
+        this.gateView = gateView;
+    }
     public void setFarView(DeviceInfo farView) {
         this.farView = farView;
     }

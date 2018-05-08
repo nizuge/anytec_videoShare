@@ -9,7 +9,7 @@ public class DeviceInfo {
     private String password;
     private short port;
     private NativeLong deviceId;
-    private int status;//0近景，1远景
+    private int status;//0近景，1远景,2滑梯口
 
     public DeviceInfo(String deviceIp,String userName,String password,short port,int status){
         this.deviceIp = deviceIp;
