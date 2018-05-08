@@ -95,6 +95,12 @@ public class MyApplicationRunner implements ApplicationRunner {
             "  #拍摄时长\n" +
             "      duration: 00:00:3\n" +
             "camera:\n" +
+            "  #滑梯口摄像机\n" +
+            "  gate:\n" +
+            "    ip: 172.16.5.220\n" +
+            "    username: admin\n" +
+            "    password: n-tech123\n" +
+            "    port: 8000\n" +
             "  #近景摄像机\n" +
             "  close:\n" +
             "    ip: 172.16.5.220\n" +
@@ -157,6 +163,7 @@ public class MyApplicationRunner implements ApplicationRunner {
             System.exit(1);
         }
         logger.info("====== 远近景摄像头设置 =======");
+        slideService.setGateView(new DeviceInfo(config.getGateCameraIp(), config.getGateCameraUsername(), config.getGateCameraPassword(), config.getGateCameraPort(), 2));
         slideService.setCloseView(new DeviceInfo(config.getCloseCameraIp(), config.getCloseCameraUsername(), config.getCloseCameraPassword(), config.getCloseCameraPort(), 0));
         slideService.setFarView(new DeviceInfo(config.getFarCameraIp(), config.getFarCameraUsername(), config.getFarCameraPassword(), config.getFarCameraPort(), 1));
         expZoneService.setAreaDevice();

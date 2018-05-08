@@ -36,6 +36,14 @@ public class GeneralConfig {
     @Value("${config.db_insert}")
     private boolean db_insert;
     //camera
+    @Value("${camera.gate.ip}")
+    private String gateCameraIp;
+    @Value("${camera.gate.username}")
+    private String gateCameraUsername;
+    @Value("${camera.gate.password}")
+    private String gateCameraPassword;
+    @Value("${camera.gate.port}")
+    private short gateCameraPort;
     @Value("${camera.close.ip}")
     private String closeCameraIp;
     @Value("${camera.close.username}")
@@ -73,6 +81,8 @@ public class GeneralConfig {
     private String arAreaCameraIp;
     @Value("${video.areaVideoMaxTime}")
     private long areaVideoMaxTime;
+    @Value("${video.gate.duration}")
+    private long gateDuration;
     @Value("${video.close.duration}")
     private long duration0;
     @Value("${video.far.duration}")
@@ -134,6 +144,22 @@ public class GeneralConfig {
         return delay;
     }
 
+    public String getGateCameraIp() {
+        return gateCameraIp;
+    }
+
+    public String getGateCameraUsername() {
+        return gateCameraUsername;
+    }
+
+    public String getGateCameraPassword() {
+        return gateCameraPassword;
+    }
+
+    public short getGateCameraPort() {
+        return gateCameraPort;
+    }
+
     public String getCloseCameraIp() {
         return closeCameraIp;
     }
@@ -184,6 +210,10 @@ public class GeneralConfig {
 
     public String getStart2() {
         return start2;
+    }
+
+    public long getGateDuration() {
+        return gateDuration;
     }
 
     public String getVideo1Duration() {
