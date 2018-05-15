@@ -1,9 +1,6 @@
 package cn.anytec.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Arrays;
 
 public class Utils {
@@ -78,4 +75,43 @@ public class Utils {
         }
         return sb.toString();
     }
+
+    /**
+     * 将本地文件写入到其他路径
+     * @param source
+     * @param output
+     */
+    public static void writeFileToOtherPath(File source,File output){
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(output);
+            byte[] anVideo = Utils.streamToByte(is);
+            if(anVideo != null){
+                os.write(anVideo);
+                os.flush();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(is != null){
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(os != null){
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 }

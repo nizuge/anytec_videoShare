@@ -129,6 +129,16 @@ public class ExpZoneService {
         return false;
     }
 
+    //验证musicLocation
+    public boolean musicLocationCheckAll(String location){
+        if (location.equals(config.getWaterSlide())||location.equals(config.getBumperCar())||
+                location.equals(config.getToyCar())||location.equals(config.getArArea())||
+                location.equals(config.getPrepare())||location.equals(config.getGate())) {
+            return true;
+        }
+        return false;
+    }
+
     //开启视频录制
     public boolean saveAreaCamera(String place) {
         if (place.equals(config.getBumperCar())) {
@@ -218,6 +228,10 @@ public class ExpZoneService {
             file = new File(config.getArAreaBgm());
         }else if(place.equals(config.getWaterSlide())){
             file = new File(config.getWaterSlideBgm());
+        }else if(place.equals(config.getPrepare())){
+            file = new File(config.getWaterSlideBgmPart1());
+        }else if(place.equals(config.getGate())){
+            file = new File(config.getWaterSlideBgmPart2());
         }else {
             return null;
         }

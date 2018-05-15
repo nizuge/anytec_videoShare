@@ -162,7 +162,8 @@ public class MyApplicationRunner implements ApplicationRunner {
             logger.error("Check if ffmpeg is installed");
             System.exit(1);
         }
-        logger.info("====== 远近景摄像头设置 =======");
+        logger.info("====== 滑梯摄像头设置 =======");
+        slideService.setPrepareView(new DeviceInfo(config.getPrepareCameraIp(), config.getPrepareCameraUsername(), config.getPrepareCameraPassword(), config.getPrepareCameraPort(), 3));
         slideService.setGateView(new DeviceInfo(config.getGateCameraIp(), config.getGateCameraUsername(), config.getGateCameraPassword(), config.getGateCameraPort(), 2));
         slideService.setCloseView(new DeviceInfo(config.getCloseCameraIp(), config.getCloseCameraUsername(), config.getCloseCameraPassword(), config.getCloseCameraPort(), 0));
         slideService.setFarView(new DeviceInfo(config.getFarCameraIp(), config.getFarCameraUsername(), config.getFarCameraPassword(), config.getFarCameraPort(), 1));
@@ -260,7 +261,9 @@ public class MyApplicationRunner implements ApplicationRunner {
      */
     public void parseIO(String info){
         String DI = info.substring(16);
-        if(DI.equals("0100") ){
+        if(DI.equals("0101")){
+            slideService.setEndFlag(true);
+        }else if(DI.equals("0100") ){
             logger.info("准备开始录制视频");
             readyTime = System.currentTimeMillis();
             Thread task = new Thread(()-> {

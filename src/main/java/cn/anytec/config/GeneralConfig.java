@@ -11,8 +11,13 @@ public class GeneralConfig {
 
     @Value("${config.network_segment}")
     private String network_segment;
-    @Value("${config.bgm.waterSlide}")
+    //bgm
+    @Value("${config.bgm.waterSlide.play}")
     private String waterSlideBgm;
+    @Value("${config.bgm.waterSlide.ready.part1}")
+    private String waterSlideBgmPart1;
+    @Value("${config.bgm.waterSlide.ready.part2}")
+    private String waterSlideBgmPart2;
     @Value("${config.bgm.bumperCar}")
     private String bumperCarBgm;
     @Value("${config.bgm.toyCar}")
@@ -21,6 +26,7 @@ public class GeneralConfig {
     private String arAreaBgm;
     @Value("${config.bgm.path}")
     private String bgmPath;
+    //红外模块
     @Value("${config.io_module.ip}")
     private String io_module_ip;
     @Value("${config.io_module.port}")
@@ -28,12 +34,20 @@ public class GeneralConfig {
     @Value("${config.io_module.delay}")
     private long io_module_delay;
 
-
+    //本地存储
     @Value("${config.local_save}")
     private boolean local_save;
     @Value("${config.db_insert}")
     private boolean db_insert;
     //camera
+    @Value("${camera.prepare.ip}")
+    private String prepareCameraIp;
+    @Value("${camera.prepare.username}")
+    private String prepareCameraUsername;
+    @Value("${camera.prepare.password}")
+    private String prepareCameraPassword;
+    @Value("${camera.prepare.port}")
+    private short prepareCameraPort;
     @Value("${camera.gate.ip}")
     private String gateCameraIp;
     @Value("${camera.gate.username}")
@@ -79,6 +93,8 @@ public class GeneralConfig {
     private String arAreaCameraIp;
     @Value("${video.areaVideoMaxTime}")
     private long areaVideoMaxTime;
+    @Value("${video.prepare.duration}")
+    private long prepareDuration;
     @Value("${video.gate.duration}")
     private long gateDuration;
     @Value("${video.close.duration}")
@@ -105,6 +121,10 @@ public class GeneralConfig {
     private String toyCar;
     @Value("${place.arArea}")
     private String arArea;
+    @Value("${place.prepare}")
+    private String prepare;
+    @Value("${place.gate}")
+    private String gate;
     //aliyun
     @Value("${aliyun.accessKeyId}")
     private String accessKeyId;
@@ -140,6 +160,21 @@ public class GeneralConfig {
 
     public long getDelay() {
         return delay;
+    }
+
+    public String getPrepareCameraIp() {
+        return prepareCameraIp;
+    }
+
+    public String getPrepareCameraUsername() {
+        return prepareCameraUsername;
+    }
+
+    public String getPrepareCameraPassword() {
+        return prepareCameraPassword;
+    }
+    public short getPrepareCameraPort() {
+        return prepareCameraPort;
     }
 
     public String getGateCameraIp() {
@@ -210,6 +245,10 @@ public class GeneralConfig {
         return start2;
     }
 
+    public long getPrepareDuration() {
+        return prepareDuration;
+    }
+
     public long getGateDuration() {
         return gateDuration;
     }
@@ -232,6 +271,14 @@ public class GeneralConfig {
 
     public String getToyCar() {
         return toyCar;
+    }
+
+    public String getPrepare() {
+        return prepare;
+    }
+
+    public String getGate() {
+        return gate;
     }
 
     public String getArArea() {
@@ -315,12 +362,20 @@ public class GeneralConfig {
         return db_insert;
     }
 
-    public long getIo_module_delayTime() {
-        return io_module_delay;
-    }
-
     public long getXuanma_ready() {
         return xuanma_ready;
+    }
+
+    public String getWaterSlideBgmPart1() {
+        return waterSlideBgmPart1;
+    }
+
+    public String getWaterSlideBgmPart2() {
+        return waterSlideBgmPart2;
+    }
+
+    public long getIo_module_delayTime() {
+        return io_module_delay;
     }
 }
 

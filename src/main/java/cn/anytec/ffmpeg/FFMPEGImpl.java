@@ -61,7 +61,7 @@ public class FFMPEGImpl implements FFMPEGService {
                 "-y",output.getAbsolutePath()
         }));
         if(output.exists()){
-            //source.delete();
+            source.delete();
             return true;
         }
         return false;
@@ -126,7 +126,7 @@ public class FFMPEGImpl implements FFMPEGService {
     }
 
     @Override
-    public boolean concatVideos(File concatFile, File output, boolean isCover) {
+    public boolean concatMedia(File concatFile, File output, boolean isCover) {
         if(getMediaInfo(concatFile) == null){
             logger.error("无效输入："+concatFile);
             return false;
@@ -224,4 +224,59 @@ public class FFMPEGImpl implements FFMPEGService {
         }
         return false;
     }
+
+    @Override
+    public boolean separateAudio(File video, File music, boolean isCover) {
+        if(getMediaInfo(video) == null){
+            logger.error("无效输入："+video);
+            return false;
+        }
+        if(!isCover && music.exists()){
+            logger.warn("输出文件已存在");
+            return false;
+        }
+        while (runtimeLocal.isAlive()){
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        logger.debug(runtimeLocal.execute(new String[]{
+                "ffmpeg","-i",video.getAbsolutePath(),
+                "-vn",music.getAbsolutePath()
+        }));
+        if(music.exists()){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean separateVideo(File video, File videoAN, boolean isCover) {
+        if(getMediaInfo(video) == null){
+            logger.error("无效输入："+video);
+            return false;
+        }
+        if(!isCover && videoAN.exists()){
+            logger.warn("输出文件已存在");
+            return false;
+        }
+        while (runtimeLocal.isAlive()){
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        logger.debug(runtimeLocal.execute(new String[]{
+                "ffmpeg","-i",video.getAbsolutePath(),
+                "-an",videoAN.getAbsolutePath()
+        }));
+        if(videoAN.exists()){
+            return true;
+        }
+        return false;
+    }
+
 }

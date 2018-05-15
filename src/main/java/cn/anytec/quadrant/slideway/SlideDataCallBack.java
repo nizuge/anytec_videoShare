@@ -35,8 +35,10 @@ public class SlideDataCallBack implements HCNetSDK.FRealDataCallBack_V30 {
         }else if(fileName.equals("far.tmp")){
             if(parent.list().length != 0){
                 Arrays.stream(parent.listFiles()).forEach((child) -> {
-                    if(!child.getName().contains("pre"))
+                    if(child.getName().contains("pre")||child.getName().contains("gate")){
+                    }else {
                         child.delete();
+                    }
                 });
             }
         }
@@ -69,7 +71,7 @@ public class SlideDataCallBack implements HCNetSDK.FRealDataCallBack_V30 {
     public void rename(){
         if(videoTmp.exists() && videoTmp.getName().contains("tmp")){
             if(!videoTmp.renameTo(new File(videoTmp.getAbsolutePath().replace("tmp","temp")))){
-                logger.error("滑梯区视频临时文件写入完毕标识失败");
+                logger.error(videoTmp.getName()+"重命名失败");
             }
         }
     }
