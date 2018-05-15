@@ -111,36 +111,7 @@ public class ExpVideoProcessing implements Runnable {
                                 File finalVideo = new File(cameraIpFile, areaVideoName);
                                 if(!ffmpegService.mergeAudio(audio,output,finalVideo,true)){
                                     logger.error("合成音频失败");
-                                    InputStream is = null;
-                                    OutputStream os = null;
-                                    try {
-                                        is = new FileInputStream(output);
-                                        os = new FileOutputStream(finalVideo);
-                                        byte[] anVideo = Utils.streamToByte(is);
-                                        if(anVideo != null){
-                                            os.write(anVideo);
-                                            os.flush();
-                                        }
-                                    } catch (FileNotFoundException e) {
-                                        e.printStackTrace();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    } finally {
-                                        if(is != null){
-                                            try {
-                                                is.close();
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                        if(os != null){
-                                            try {
-                                                os.close();
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    }
+                                    Utils.writeFileToOtherPath(output,finalVideo);
                                 }
                                 Map<String, List<String>> pathVisitorIdMap = expZoneService.getPathVisitorIdMap();
                                 String idJson = "";

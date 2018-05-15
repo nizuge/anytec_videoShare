@@ -170,7 +170,7 @@ public class MainController{
         logger.info("参数1：id="+visitorId);
         Map<String,Object> resultMap = new HashMap<>();
         slideService.setSlideId(visitorId);
-        slideService.startGateCamera(visitorId);
+        slideService.startPrepareCamera(visitorId);
         resultMap.put("ID",slideService.getSlideId());
         return new JSONObject(resultMap).toJSONString();
     }
@@ -181,7 +181,7 @@ public class MainController{
         logger.info("接口调用：/anytec/bgm/update");
         logger.info("参数1：location="+place);
         Map<String,Object> resultMap = new HashMap<>();
-        if(!expZoneService.locationCheckAll(place)){
+        if(!expZoneService.musicLocationCheckAll(place)){
             logger.info("bad location");
             resultMap.put("code","bad location");
             response.setStatus(400);

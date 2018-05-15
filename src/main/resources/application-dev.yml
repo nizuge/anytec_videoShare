@@ -9,7 +9,11 @@ config:
     port: 502
     delay: 2000
   bgm:
-    waterSlide: /home/anytec/videoShare/waterSlide.mp3
+    waterSlide:
+      ready:
+        part1: /home/anytec/videoShare/toyCar.mp3
+        part2: /home/anytec/videoShare/arArea.mp3
+      play: /home/anytec/videoShare/waterSlide.mp3
     bumperCar: /home/anytec/videoShare/bumperCar.mp3
     toyCar: /home/anytec/videoShare/toyCar.mp3
     arArea: /home/anytec/videoShare/arArea.mp3
@@ -37,9 +41,12 @@ video:
   arAreaCameraIp: 172.16.5.222
   #体验区视频最大拍摄时间（s）
   areaVideoMaxTime: 15000
+  #刷卡后准备阶段的摄像机
+  prepare:
+    duration: 5000
   #滑梯口摄像机
   gate:
-   duration: 4000
+    duration: 4000
   #近景视频
   close:
   #拍摄时长
@@ -51,7 +58,7 @@ video:
   #远景视频
   far:
   #拍摄时长
-    duration: 4000
+    duration: 10000
   #落水前视频
     first:
   #开始拍摄时间
@@ -65,6 +72,12 @@ video:
   #拍摄时长
       duration: 1.5
 camera:
+  #刷卡后准备阶段的摄像机
+  prepare:
+    ip: 192.168.10.64
+    username: admin
+    password: n-tech123
+    port: 8000
   #滑梯口摄像机
   gate:
     ip: 192.168.10.90
@@ -92,3 +105,5 @@ place:
   bumperCar: bumperCar
   toyCar: toyCar
   arArea: arArea
+  prepare: prepare
+  gate : gate

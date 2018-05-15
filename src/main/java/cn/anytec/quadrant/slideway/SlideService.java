@@ -23,9 +23,11 @@ public class SlideService {
     private ThreadLocal<Integer> reFresh_threadLocal = new ThreadLocal();
     private static Thread pre_thread;
 
+    private DeviceInfo prepareView;
     private DeviceInfo gateView;
     private DeviceInfo closeView;
     private DeviceInfo farView;
+    private volatile Boolean endFlag = false;
 
     @Autowired
     HCSDKHandler hcsdkHandler;
@@ -94,12 +96,16 @@ public class SlideService {
         }
     }
 
-    public void startGateCamera(String visitorId) {
+    public void startPrepareCamera(String visitorId) {
         while (pre_thread != null && pre_thread.isAlive()){
             pre_thread.interrupt();
         }
         pre_thread = new Thread(()->{
             try {
+                if (!hcsdkHandler.loginCamera(prepareView)) {
+                    logger.error("预备摄像头注册失败");
+                    return;
+                }
                 if (!hcsdkHandler.loginCamera(gateView)) {
                     logger.error("滑梯口摄像头注册失败");
                     return;
@@ -113,14 +119,30 @@ public class SlideService {
                         return;
                     }
                 }
-                logger.info("开启滑梯口摄像头预览:" + gateView.getDeviceIp());
+                logger.info("开启预备摄像头预览:" + prepareView.getDeviceIp());
                 SlideDataCallBack preCallBack = new SlideDataCallBack(new File(visitorContext, "pre.tmp"));
-                NativeLong lRealPlayHandle_pre = hcsdkHandler.preView(gateView, preCallBack);
-                Thread.sleep(config.getGateDuration());
-                logger.info("关闭滑梯口摄像头预览:" + gateView.getDeviceIp());
+                NativeLong lRealPlayHandle_pre = hcsdkHandler.preView(prepareView, preCallBack);
+                setEndFlag(false);
+                for(int i=0;i<config.getGateDuration()/1000+1;i++){
+                    if(endFlag){
+                        break;
+                    }
+                    Thread.sleep(1000);
+                }
+                logger.info("关闭预备摄像头预览:" + prepareView.getDeviceIp());
                 hcsdkHandler.stopPreView(lRealPlayHandle_pre);
                 preCallBack.close();
                 preCallBack.rename();
+                //滑梯口摄像头录制
+                logger.info("开启滑梯口摄像头预览:" + gateView.getDeviceIp());
+                SlideDataCallBack gateCallBack = new SlideDataCallBack(new File(visitorContext, "gate.tmp"));
+                NativeLong lRealPlayHandle_gate = hcsdkHandler.preView(gateView, gateCallBack);
+                Thread.sleep(config.getGateDuration());
+                logger.info("关闭滑梯口摄像头预览:" + gateView.getDeviceIp());
+                hcsdkHandler.stopPreView(lRealPlayHandle_gate);
+                gateCallBack.close();
+                gateCallBack.rename();
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -129,6 +151,9 @@ public class SlideService {
         pre_thread.start();
     }
 
+    public void setPrepareView(DeviceInfo prepareView) {
+        this.prepareView = prepareView;
+    }
     public void setGateView(DeviceInfo gateView) {
         this.gateView = gateView;
     }
@@ -141,12 +166,19 @@ public class SlideService {
     public void setSlideId(String slideId) {
         SlideService.slideId = slideId;
     }
-    public String getSlideId() {return slideId;}
+    public String getSlideId() {
+        return slideId;
+    }
     public void removeId(String id){
         if(slideId != null && id.equals(slideId))
             slideId = null;
     }
-    public void reFreshSlideSignal(){
+
+    public void setEndFlag(boolean endFlag) {
+        this.endFlag=endFlag;
+    }
+
+    public void reFreshSlideSignal() {
         reFresh++;
     }
 

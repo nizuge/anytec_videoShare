@@ -11,8 +11,12 @@ public interface FFMPEGService {
 
     boolean deferVideo(File source, File output, Integer fps, boolean isCover);
 
-    boolean concatVideos(File concatFile, File output, boolean isCover);
+    boolean concatMedia(File concatFile, File output, boolean isCover);
 
     boolean mergeAudio(File audio, File video, File output, boolean isCover);
+
+    boolean separateVideo(File video, File output, boolean isCover);
+
+    boolean separateAudio(File video, File videoAN, boolean isCover);
 
 }
