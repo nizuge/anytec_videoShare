@@ -97,7 +97,7 @@ public class FFMPEGImpl implements FFMPEGService {
     }
 
     @Override
-    public boolean deferVideo(File source, File output, Integer fps, boolean isCover) {
+    public boolean deferVideo(File source, File output, double pts, boolean isCover) {
         if(getMediaInfo(source) == null){
             logger.error("无效输入："+source);
             return false;
@@ -114,8 +114,9 @@ public class FFMPEGImpl implements FFMPEGService {
             }
         }
         logger.debug(runtimeLocal.execute(new String[]{
-                "ffmpeg","-r",fps.toString(),
+                "ffmpeg",
                 "-i",source.getAbsolutePath(),
+                "-filter:v","setpts="+pts+"*PTS",
                 "-strict","-2",
                 "-y",output.getAbsolutePath()
         }));

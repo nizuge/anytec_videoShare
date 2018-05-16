@@ -123,7 +123,7 @@ public class SlideService {
                 SlideDataCallBack preCallBack = new SlideDataCallBack(new File(visitorContext, "pre.tmp"));
                 NativeLong lRealPlayHandle_pre = hcsdkHandler.preView(prepareView, preCallBack);
                 setEndFlag(false);
-                for(int i=0;i<config.getGateDuration()/1000+1;i++){
+                for(int i=0;i<config.getPrepareDuration()/1000+1;i++){
                     if(endFlag){
                         break;
                     }

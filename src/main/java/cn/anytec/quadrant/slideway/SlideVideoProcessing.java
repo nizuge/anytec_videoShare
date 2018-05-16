@@ -126,8 +126,9 @@ public class SlideVideoProcessing implements Runnable{
                     source = new File(customer,"close.mp4");
                     output = new File(customer,"slow.mp4");
                     logger.info("开始视频降帧处理");
-                    if(!ffmpegService.deferVideo(source,output,config.getFps(),true)){
+                    if(!ffmpegService.deferVideo(source,output,config.getPts(),true)){
                         logger.error("视频降帧处理失败");
+                        continue ;
                     }
                     //第四步：创建视频合并列表
                     //合并列表

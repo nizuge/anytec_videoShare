@@ -103,8 +103,8 @@ public class GeneralConfig {
     private long duration1;
     @Value("${video.close.delay}")
     private long delay;
-    @Value("${video.close.fps}")
-    private int fps;
+    @Value("${video.close.pts}")
+    private double pts;
     @Value("${video.far.first.start}")
     private String start1;
     @Value("${video.far.second.start}")
@@ -305,9 +305,6 @@ public class GeneralConfig {
         return bgmPath;
     }
 
-    public int getFps() {
-        return fps;
-    }
 
     public String getVideoSavePath() {
         return videoSavePath;
@@ -376,6 +373,10 @@ public class GeneralConfig {
 
     public long getIo_module_delayTime() {
         return io_module_delay;
+    }
+
+    public double getPts() {
+        return pts;
     }
 }
 
