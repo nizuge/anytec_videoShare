@@ -170,6 +170,7 @@ public class MainController{
         logger.info("参数1：id="+visitorId);
         Map<String,Object> resultMap = new HashMap<>();
         slideService.setSlideId(visitorId);
+        slideService.setReFreshGlissadeFlag();
         slideService.startPrepareCamera(visitorId);
         resultMap.put("ID",slideService.getSlideId());
         return new JSONObject(resultMap).toJSONString();

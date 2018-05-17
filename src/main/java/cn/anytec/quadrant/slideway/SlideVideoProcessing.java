@@ -126,7 +126,7 @@ public class SlideVideoProcessing implements Runnable{
                     source = new File(customer,"close.mp4");
                     output = new File(customer,"slow.mp4");
                     logger.info("开始视频降帧处理");
-                    if(!ffmpegService.deferVideo(source,output,config.getPts(),true)){
+                    if(!ffmpegService.deferVideo(source,output,config.getCloseFps(),config.getPts(),true)){
                         logger.error("视频降帧处理失败");
                         continue ;
                     }
@@ -153,8 +153,8 @@ public class SlideVideoProcessing implements Runnable{
                             .append("file '").append(customer.getAbsolutePath()).append(File.separator).append("prepareA.mp3").append("'\n")
                             .append("file '").append(customer.getAbsolutePath()).append(File.separator).append("waterslideA.mp3").append("'\n");
                     StringBuilder concatText6 = new StringBuilder()
-                            .append("file '").append(customer.getAbsolutePath()).append(File.separator).append("prepareV.mp4").append("'\n")
-                            .append("file '").append(customer.getAbsolutePath()).append(File.separator).append("waterslideV.mp4").append("'\n");
+                            .append("file '").append(customer.getAbsolutePath()).append(File.separator).append("prepareS.mp4").append("'\n")
+                            .append("file '").append(customer.getAbsolutePath()).append(File.separator).append("waterslideS.mp4").append("'\n");
                     OutputStream outputStream1 = null;
                     OutputStream outputStream2 = null;
                     OutputStream outputStream3 = null;
@@ -276,7 +276,21 @@ public class SlideVideoProcessing implements Runnable{
                         logger.error("playing部分分离出视频失败");
                         continue;
                     }
-                    //第十二步：ready与playing部分分别合成音频视频
+                    //第十二步：ready 与 playing部分视频同帧率处理
+                    logger.info("开始进行ready与playing部分视频同帧率处理");
+                    source = new File(customer,"prepareV.mp4");
+                    output = new File(customer,"prepareS.mp4");
+                    if(!ffmpegService.changeFps(source,output,config.getFps(),true)){
+                        logger.error(source.getName()+"变帧处理失败");
+                        continue;
+                    }
+                    source = new File(customer,"waterslideV.mp4");
+                    output = new File(customer,"waterslideS.mp4");
+                    if(!ffmpegService.changeFps(source,output,config.getFps(),true)){
+                        logger.error(source.getName()+"变帧处理失败");
+                        continue;
+                    }
+                    //第十三步：ready与playing部分分别合成音频视频
                     source = concatFile5;
                     output = new File(customer,"final.mp3");
                     if(!ffmpegService.concatMedia(source,output,true)){
@@ -302,7 +316,7 @@ public class SlideVideoProcessing implements Runnable{
                     String videoName = System.currentTimeMillis()+".mp4";
                     location.append(File.separator).append(videoName);
                     finalVideo = new File(location.toString());
-                    //第十步：合并整个视频
+                    //第十四步：合并整个视频
                     File audio = new File(customer,"final.mp3");
                     File video = new File(customer,"final.mp4");
                     logger.info("开始最终合成");

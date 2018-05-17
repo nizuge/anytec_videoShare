@@ -30,6 +30,7 @@ aliyun:
   accessKeySecret: ARmCIra7FCWl8LGAAxG7KOVAzZzd6D
 video:
   #滑梯各段视频保存路径
+  fps: 25
   path: /home/anytec/videoShare/slideway/
   #滑梯合成视频保存路径
   save: /home/anytec/videoShare/composite/generateVideo/
@@ -53,8 +54,10 @@ video:
     duration: 1000
   #远景摄像头启动后延迟2s开始拍摄
     delay: 1500
+  #帧率
+    fps: 20
   #放慢倍数
-    pts: 6
+    pts: 3
   #远景视频
   far:
   #拍摄时长

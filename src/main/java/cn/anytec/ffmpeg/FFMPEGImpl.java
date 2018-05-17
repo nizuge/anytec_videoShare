@@ -97,7 +97,7 @@ public class FFMPEGImpl implements FFMPEGService {
     }
 
     @Override
-    public boolean deferVideo(File source, File output, double pts, boolean isCover) {
+    public boolean changeFps(File source, File output, Integer fps, boolean isCover) {
         if(getMediaInfo(source) == null){
             logger.error("无效输入："+source);
             return false;
@@ -114,12 +114,53 @@ public class FFMPEGImpl implements FFMPEGService {
             }
         }
         logger.debug(runtimeLocal.execute(new String[]{
-                "ffmpeg",
+                "ffmpeg","-r",fps.toString(),
                 "-i",source.getAbsolutePath(),
-                "-filter:v","setpts="+pts+"*PTS",
                 "-strict","-2",
                 "-y",output.getAbsolutePath()
         }));
+        if(output.exists()){
+            source.delete();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean deferVideo(File source, File output, Integer fps,double pts, boolean isCover) {
+        if(getMediaInfo(source) == null){
+            logger.error("无效输入："+source);
+            return false;
+        }
+        if(!isCover && output.exists()){
+            logger.warn("输出文件已存在");
+            return false;
+        }
+        while (runtimeLocal.isAlive()){
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        if(pts == 0.0){
+            logger.info("Do not use PTS");
+            logger.debug(runtimeLocal.execute(new String[]{
+                    "ffmpeg","-r",fps.toString(),
+                    "-i",source.getAbsolutePath(),
+                    "-strict","-2",
+                    "-y",output.getAbsolutePath()
+            }));
+        }else {
+            logger.debug(runtimeLocal.execute(new String[]{
+                    "ffmpeg","-r",fps.toString(),
+                    "-i",source.getAbsolutePath(),
+                    "-filter:v","setpts="+pts+"*PTS",
+                    "-strict","-2",
+                    "-y",output.getAbsolutePath()
+            }));
+        }
+
         if(output.exists()){
             return true;
         }

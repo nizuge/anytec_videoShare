@@ -28,6 +28,7 @@ public class SlideService {
     private DeviceInfo closeView;
     private DeviceInfo farView;
     private volatile Boolean endFlag = false;
+    private volatile Boolean glissadeFlag = false;
 
     @Autowired
     HCSDKHandler hcsdkHandler;
@@ -82,6 +83,7 @@ public class SlideService {
             logger.info("视频流写入完毕："+slideId_threadLocal.get());
             Thread.sleep(config.getXuanma_ready());
             if(reFresh_threadLocal.get() == reFresh){
+                glissadeFlag = true;
                 farCallBack.close();
                 farCallBack.rename();
             }else {
@@ -137,7 +139,12 @@ public class SlideService {
                 logger.info("开启滑梯口摄像头预览:" + gateView.getDeviceIp());
                 SlideDataCallBack gateCallBack = new SlideDataCallBack(new File(visitorContext, "gate.tmp"));
                 NativeLong lRealPlayHandle_gate = hcsdkHandler.preView(gateView, gateCallBack);
-                Thread.sleep(config.getGateDuration());
+                for(int i=0;i<config.getGateDuration()/1000;i++){
+                    if(glissadeFlag){
+                        break;
+                    }
+                    Thread.sleep(1000);
+                }
                 logger.info("关闭滑梯口摄像头预览:" + gateView.getDeviceIp());
                 hcsdkHandler.stopPreView(lRealPlayHandle_gate);
                 gateCallBack.close();
@@ -180,6 +187,10 @@ public class SlideService {
 
     public void reFreshSlideSignal() {
         reFresh++;
+    }
+
+    public void setReFreshGlissadeFlag(){
+        glissadeFlag = false;
     }
 
 }

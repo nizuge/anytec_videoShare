@@ -9,7 +9,7 @@ public interface FFMPEGService {
 
     boolean cutVideo(File source, File output, String start, String duration, boolean isCover);
 
-    boolean deferVideo(File source, File output, double fps, boolean isCover);
+    boolean deferVideo(File source, File output,Integer fps, double pts, boolean isCover);
 
     boolean concatMedia(File concatFile, File output, boolean isCover);
 
@@ -19,4 +19,5 @@ public interface FFMPEGService {
 
     boolean separateAudio(File video, File videoAN, boolean isCover);
 
+    boolean changeFps(File source, File output,Integer fps, boolean isCover);
 }

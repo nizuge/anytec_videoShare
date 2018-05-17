@@ -81,6 +81,8 @@ public class GeneralConfig {
     //video
     @Value("${video.path}")
     private String videoContext;
+    @Value("${video.fps}")
+    private Integer fps;
     @Value("${video.areaVideoPath}")
     private String areaVideoPath;
     @Value("${video.save}")
@@ -105,6 +107,8 @@ public class GeneralConfig {
     private long delay;
     @Value("${video.close.pts}")
     private double pts;
+    @Value("${video.close.fps}")
+    private int closeFps;
     @Value("${video.far.first.start}")
     private String start1;
     @Value("${video.far.second.start}")
@@ -377,6 +381,14 @@ public class GeneralConfig {
 
     public double getPts() {
         return pts;
+    }
+
+    public int getCloseFps() {
+        return closeFps;
+    }
+
+    public Integer getFps() {
+        return fps;
     }
 }
 
