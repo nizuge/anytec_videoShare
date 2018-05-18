@@ -29,6 +29,7 @@ public class SlideService {
     private DeviceInfo farView;
     private volatile Boolean endFlag = false;
     private volatile Boolean glissadeFlag = false;
+    private volatile short glissadeMode = 0;
 
     @Autowired
     HCSDKHandler hcsdkHandler;
@@ -83,7 +84,10 @@ public class SlideService {
             logger.info("视频流写入完毕："+slideId_threadLocal.get());
             Thread.sleep(config.getXuanma_ready());
             if(reFresh_threadLocal.get() == reFresh){
-                glissadeFlag = true;
+                if(!glissadeFlag){
+                    logger.info("触发关闭滑梯口预览");
+                    glissadeFlag = true;
+                }
                 farCallBack.close();
                 farCallBack.rename();
             }else {
@@ -125,11 +129,11 @@ public class SlideService {
                 SlideDataCallBack preCallBack = new SlideDataCallBack(new File(visitorContext, "pre.tmp"));
                 NativeLong lRealPlayHandle_pre = hcsdkHandler.preView(prepareView, preCallBack);
                 setEndFlag(false);
-                for(int i=0;i<config.getPrepareDuration()/1000+1;i++){
+                for(int i=0;i<config.getPrepareDuration()/1000;i++){
+                    Thread.sleep(1000);
                     if(endFlag){
                         break;
                     }
-                    Thread.sleep(1000);
                 }
                 logger.info("关闭预备摄像头预览:" + prepareView.getDeviceIp());
                 hcsdkHandler.stopPreView(lRealPlayHandle_pre);
@@ -141,6 +145,7 @@ public class SlideService {
                 NativeLong lRealPlayHandle_gate = hcsdkHandler.preView(gateView, gateCallBack);
                 for(int i=0;i<config.getGateDuration()/1000;i++){
                     if(glissadeFlag){
+                        glissadeMode = 1;
                         break;
                     }
                     Thread.sleep(1000);
@@ -191,6 +196,12 @@ public class SlideService {
 
     public void setReFreshGlissadeFlag(){
         glissadeFlag = false;
+    }
+    public void resetGlissadeMode(){
+        glissadeMode = 0;
+    }
+    public int getGlissadeMode(){
+        return glissadeMode;
     }
 
 }

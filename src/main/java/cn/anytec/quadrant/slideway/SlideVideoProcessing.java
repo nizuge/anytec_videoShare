@@ -105,8 +105,26 @@ public class SlideVideoProcessing implements Runnable{
                             continue d1;
                         }
                     }
-                    //第二步：远景摄像头视频剪切
-
+                    //第二步：第二段准备视频时长处理
+                    int mode = slideService.getGlissadeMode();
+                    source = new File(customer,"gate.mp4");
+                    output = new File(customer,"gateN.mp4");
+                    if(mode == 1){
+                        logger.info("开始进行第二段准备视频剪切处理*");
+                        double farDuration = config.getDuration1()/1000.0;
+                        double io_module_delayDuration = config.getIo_module_delayTime()/1000.0;
+                        double xuanma_ready = config.getXuanma_ready()/1000.0;
+                        if(!ffmpegService.cutEnd(source,output,farDuration+io_module_delayDuration+xuanma_ready-1,true)){
+                            logger.error("第二段准备视频剪切失败");
+                            continue;
+                        }
+                    }else {
+                        if(!source.renameTo(output)){
+                            logger.info("二段准备视频处理失败");
+                            continue;
+                        }
+                    }
+                    //第三步：远景摄像头视频剪切
                     //剪切第一段
                     source = new File(customer,"far.mp4");
                     output = new File(customer,"far1.mp4");
@@ -122,7 +140,7 @@ public class SlideVideoProcessing implements Runnable{
                         logger.error("视频剪切失败");
                         continue;
                     }
-                    //第三步：放慢处理近景视频
+                    //第四步：放慢处理近景视频
                     source = new File(customer,"close.mp4");
                     output = new File(customer,"slow.mp4");
                     logger.info("开始视频降帧处理");
@@ -130,7 +148,7 @@ public class SlideVideoProcessing implements Runnable{
                         logger.error("视频降帧处理失败");
                         continue ;
                     }
-                    //第四步：创建视频合并列表
+                    //第五步：创建视频合并列表
                     //合并列表
                     File concatFile1 = new File(file,"concat1.txt");
                     File concatFile2 = new File(file,"concat2.txt");
@@ -204,13 +222,13 @@ public class SlideVideoProcessing implements Runnable{
                     }
                     source = concatFile1;
                     output = new File(customer,"merge12.mp4");
-                    //第五步：合并一二段视频
+                    //第六步：合并一二段视频
                     logger.info("开始合并第一二段视频");
                     if(!ffmpegService.concatMedia(source,output,true)){
                         logger.error("合成一二段视频失败");
                         continue;
                     }
-                    //第六步：合并二三段视频
+                    //第七步：合并二三段视频
                     source = concatFile2;
                     output = new File(customer,"slide.mp4");
                     logger.info("开始合并第三段视频并生成滑梯部分完整视频");
@@ -218,9 +236,23 @@ public class SlideVideoProcessing implements Runnable{
                         logger.error("生成滑梯部分完整视频失败");
                         continue;
                     }
-                    //第七步：准备视频背景音乐合成
-                    logger.info("开始合成第一段准备视频背景音乐");
+                    //第八步：ready部分视频帧率处理
+                    logger.info("开始进行ready部分视频帧率处理");
                     source = new File(customer,"pre.mp4");
+                    output = new File(customer,"preS.mp4");
+                    if(!ffmpegService.changeFps(source,output,config.getFps(),true)){
+                        logger.error(source.getName()+"变帧处理失败");
+                        continue;
+                    }
+                    source = new File(customer,"gateN.mp4");
+                    output = new File(customer,"gateS.mp4");
+                    if(!ffmpegService.changeFps(source,output,config.getFps(),true)){
+                        logger.error(source.getName()+"变帧处理失败");
+                        continue;
+                    }
+                    //第九步：准备视频背景音乐合成
+                    logger.info("开始合成第一段准备视频背景音乐");
+                    source = new File(customer,"preS.mp4");
                     output = new File(customer,"preA.mp4");
                     File audio_part1 = new File(config.getWaterSlideBgmPart1());
                     if(!ffmpegService.mergeAudio(audio_part1,source,output,true)){
@@ -228,14 +260,14 @@ public class SlideVideoProcessing implements Runnable{
                             break ;
                     }
                     logger.info("开始合成第二段准备视频背景音乐");
-                    source = new File(customer,"gate.mp4");
+                    source = new File(customer,"gateS.mp4");
                     output = new File(customer,"gateA.mp4");
                     File audio_part2 = new File(config.getWaterSlideBgmPart2());
                     if(!ffmpegService.mergeAudio(audio_part2,source,output,true)){
                         logger.info("合成第二段准备视频背景音乐时失败");
                             break ;
                     }
-                    //第八步：两段准备视频合成
+                    //第十步：两段准备视频合成
                     source = concatFile3;
                     output = new File(customer,"prepare.mp4");
                     logger.info("开始合并一二段的游客准备视频");
@@ -243,54 +275,48 @@ public class SlideVideoProcessing implements Runnable{
                         logger.error("生成一二段准备视频失败");
                         continue;
                     }
-                    //第九步：playing部分视频背景音乐合成
-                    logger.info("开始合成playing部分视频背景音乐");
+                    //第十一步：playing部分视频帧率处理
+                    logger.info("开始进行playing部分视频帧率处理");
                     source = new File(customer,"slide.mp4");
+                    output = new File(customer,"slideS.mp4");
+                    if(!ffmpegService.changeFps(source,output,config.getFps(),true)){
+                        logger.error(source.getName()+"变帧处理失败");
+                        continue;
+                    }
+                    //第十二步：playing部分视频背景音乐合成
+                    logger.info("开始合成playing部分视频背景音乐");
+                    source = new File(customer,"slideS.mp4");
                     output = new File(customer,"waterslide.mp4");
                     File audio_play = new File(config.getWaterSlideBgm());
                     if(!ffmpegService.mergeAudio(audio_play,source,output,true)){
                         logger.info("playing部分视频背景音乐合成失败");
                             break ;
                     }
-                    //第十步：ready部分媒体音频视频分离
+                    //第十三步：ready部分媒体音频视频分离
                     source = new File(customer,"prepare.mp4");
                     output = new File(customer,"prepareA.mp3");
                     if(!ffmpegService.separateAudio(source,output,true)){
                         logger.error("ready部分分离出音频失败");
                         continue;
                     }
-                    output = new File(customer,"prepareV.mp4");
+                    output = new File(customer,"prepareS.mp4");
                     if(!ffmpegService.separateVideo(source,output,true)){
                         logger.error("ready部分分离出视频失败");
                         continue;
                     }
-                    //第十一步：playing部分媒体音频视频分离
+                    //第十四步：playing部分媒体音频视频分离
                     source = new File(customer,"waterslide.mp4");
                     output = new File(customer,"waterslideA.mp3");
                     if(!ffmpegService.separateAudio(source,output,true)){
                         logger.error("playing部分分离出音频失败");
                         continue;
                     }
-                    output = new File(customer,"waterslideV.mp4");
+                    output = new File(customer,"waterslideS.mp4");
                     if(!ffmpegService.separateVideo(source,output,true)){
                         logger.error("playing部分分离出视频失败");
                         continue;
                     }
-                    //第十二步：ready 与 playing部分视频同帧率处理
-                    logger.info("开始进行ready与playing部分视频同帧率处理");
-                    source = new File(customer,"prepareV.mp4");
-                    output = new File(customer,"prepareS.mp4");
-                    if(!ffmpegService.changeFps(source,output,config.getFps(),true)){
-                        logger.error(source.getName()+"变帧处理失败");
-                        continue;
-                    }
-                    source = new File(customer,"waterslideV.mp4");
-                    output = new File(customer,"waterslideS.mp4");
-                    if(!ffmpegService.changeFps(source,output,config.getFps(),true)){
-                        logger.error(source.getName()+"变帧处理失败");
-                        continue;
-                    }
-                    //第十三步：ready与playing部分分别合成音频视频
+                    //第十五步：ready与playing部分分别合成音频视频
                     source = concatFile5;
                     output = new File(customer,"final.mp3");
                     if(!ffmpegService.concatMedia(source,output,true)){
@@ -316,7 +342,7 @@ public class SlideVideoProcessing implements Runnable{
                     String videoName = System.currentTimeMillis()+".mp4";
                     location.append(File.separator).append(videoName);
                     finalVideo = new File(location.toString());
-                    //第十四步：合并整个视频
+                    //第十六步：合并整个视频
                     File audio = new File(customer,"final.mp3");
                     File video = new File(customer,"final.mp4");
                     logger.info("开始最终合成");
@@ -324,10 +350,11 @@ public class SlideVideoProcessing implements Runnable{
                         logger.error("最终合成失败");
                         continue;
                     }
+                    logger.info("============= OK =============");
 
-                    if(!Utils.clearDir(customer)){
+                   /* if(!Utils.clearDir(customer)){
                         logger.error("删除游客"+customer.getName()+"视频处理文件夹失败");
-                    }
+                    }*/
                     logger.info("========== 视频生成完毕 ==========");
                     if(config.isDb_insert()){
                         StringBuilder url = new StringBuilder("http://")

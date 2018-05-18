@@ -261,9 +261,9 @@ public class MyApplicationRunner implements ApplicationRunner {
      */
     public void parseIO(String info){
         String DI = info.substring(16);
-        if(DI.equals("0101")){
+        if(!DI.equals("0100")){
             slideService.setEndFlag(true);
-        }else if(DI.equals("0100") ){
+        }else{
             logger.info("准备开始录制视频");
             readyTime = System.currentTimeMillis();
             Thread task = new Thread(()-> {

@@ -1,11 +1,13 @@
 package cn.anytec.ffmpeg;
 
+import cn.anytec.config.GeneralConfig;
 import cn.anytec.util.RuntimeLocal;
 import it.sauronsoftware.jave.Encoder;
 import it.sauronsoftware.jave.EncoderException;
 import it.sauronsoftware.jave.MultimediaInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -16,6 +18,9 @@ public class FFMPEGImpl implements FFMPEGService {
     private static final Logger logger = LoggerFactory.getLogger(FFMPEGImpl.class);
     private static final Encoder encoder = new Encoder(new UbuntuFFMPEGLocator());
     private static RuntimeLocal runtimeLocal = new RuntimeLocal();
+
+    @Autowired
+    private GeneralConfig config;
 
     @Override
     public FewMediaInfo getMediaInfo(File file) {
@@ -69,7 +74,8 @@ public class FFMPEGImpl implements FFMPEGService {
 
     @Override
     public boolean cutVideo(File source, File output, String start, String duration,boolean isCover) {
-        if(getMediaInfo(source) == null){
+        FewMediaInfo info = getMediaInfo(source);
+        if(info == null){
             logger.error("无效输入："+source);
             return false;
         }
@@ -86,6 +92,41 @@ public class FFMPEGImpl implements FFMPEGService {
         }
         logger.debug(runtimeLocal.execute(new String[]{
                 "ffmpeg", "-ss",start,"-t",duration,
+                "-i",source.getAbsolutePath(),
+                "-c:v","libx264","-c:a","aac","-strict","experimental","-b:a","98k",
+                "-y",output.getAbsolutePath()
+        }));
+        if(output.exists()){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean cutEnd(File source, File output,double endDuration ,boolean isCover) {
+        FewMediaInfo info = getMediaInfo(source);
+        if(info == null){
+            logger.error("无效输入："+source);
+            return false;
+        }
+        if(!isCover && output.exists()){
+            logger.warn("输出文件已存在");
+            return false;
+        }
+        logger.info(info.getDuration()+"--"+endDuration);
+        while (runtimeLocal.isAlive()){
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        double t = info.getDuration()-endDuration;
+        if(t<0){
+            t = 8.0;
+        }
+        logger.debug(runtimeLocal.execute(new String[]{
+                "ffmpeg", "-ss","0","-t",Double.valueOf(t).toString(),
                 "-i",source.getAbsolutePath(),
                 "-c:v","libx264","-c:a","aac","-strict","experimental","-b:a","98k",
                 "-y",output.getAbsolutePath()
@@ -120,7 +161,7 @@ public class FFMPEGImpl implements FFMPEGService {
                 "-y",output.getAbsolutePath()
         }));
         if(output.exists()){
-            source.delete();
+            //source.delete();
             return true;
         }
         return false;

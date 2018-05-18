@@ -170,6 +170,7 @@ public class MainController{
         logger.info("参数1：id="+visitorId);
         Map<String,Object> resultMap = new HashMap<>();
         slideService.setSlideId(visitorId);
+        slideService.resetGlissadeMode();
         slideService.setReFreshGlissadeFlag();
         slideService.startPrepareCamera(visitorId);
         resultMap.put("ID",slideService.getSlideId());
@@ -285,6 +286,7 @@ public class MainController{
     @RequestMapping(value = "/trigger")
     @ResponseBody
     public void trigger(){
+        myApplicationRunner.parseIO("00000000000000000101");
         myApplicationRunner.parseIO("00000000000000000100");
     }
 }
