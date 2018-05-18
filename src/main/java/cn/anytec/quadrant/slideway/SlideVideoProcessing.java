@@ -5,6 +5,7 @@ import cn.anytec.aliyun.vod.VodUpload;
 import cn.anytec.config.GeneralConfig;
 import cn.anytec.config.SpringBootListener;
 import cn.anytec.ffmpeg.FFMPEGService;
+import cn.anytec.ffmpeg.FewMediaInfo;
 import cn.anytec.mongo.MongoDBService;
 import cn.anytec.util.Utils;
 import com.alibaba.fastjson.JSONArray;
@@ -109,18 +110,29 @@ public class SlideVideoProcessing implements Runnable{
                     int mode = slideService.getGlissadeMode();
                     source = new File(customer,"gate.mp4");
                     output = new File(customer,"gateN.mp4");
+                    FewMediaInfo fewMediaInfo = ffmpegService.getMediaInfo(source);
+                    double mediaDuration = fewMediaInfo.getDuration();
+                    if(fewMediaInfo == null){
+                        logger.error(source.getName()+":无效的视频输入");
+                        continue;
+                    }
                     if(mode == 1){
                         logger.info("开始进行第二段准备视频剪切处理*");
                         double farDuration = config.getDuration1()/1000.0;
                         double io_module_delayDuration = config.getIo_module_delayTime()/1000.0;
                         double xuanma_ready = config.getXuanma_ready()/1000.0;
-                        if(!ffmpegService.cutEnd(source,output,farDuration+io_module_delayDuration+xuanma_ready-1,true)){
+                        double endDuration = farDuration+io_module_delayDuration+xuanma_ready-1;
+                        double t = mediaDuration-endDuration;
+                        if(!(t > 0)){
+                            t = config.getGateMax();
+                        }
+                        if(!ffmpegService.cutVideo(source,output,"0",Double.valueOf(t).toString(),true)){
                             logger.error("第二段准备视频剪切失败");
                             continue;
                         }
                     }else {
-                        if(!source.renameTo(output)){
-                            logger.info("二段准备视频处理失败");
+                        if(!ffmpegService.cutVideo(source,output,"0",Double.valueOf(config.getGateMax()).toString(),true)){
+                            logger.error("第二段准备视频剪切失败");
                             continue;
                         }
                     }

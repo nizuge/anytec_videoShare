@@ -97,8 +97,8 @@ public class GeneralConfig {
     private long areaVideoMaxTime;
     @Value("${video.prepare.duration}")
     private long prepareDuration;
-    @Value("${video.gate.duration}")
-    private long gateDuration;
+    @Value("${video.gate.max}")
+    private double gateMax;
     @Value("${video.close.duration}")
     private long duration0;
     @Value("${video.far.duration}")
@@ -253,10 +253,6 @@ public class GeneralConfig {
         return prepareDuration;
     }
 
-    public long getGateDuration() {
-        return gateDuration;
-    }
-
     public String getVideo1Duration() {
         return video1Duration;
     }
@@ -390,7 +386,12 @@ public class GeneralConfig {
     public Integer getFps() {
         return fps;
     }
+
+    public double getGateMax() {
+        return gateMax;
+    }
 }
+
 
 
 

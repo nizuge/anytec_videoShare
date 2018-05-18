@@ -143,7 +143,11 @@ public class SlideService {
                 logger.info("开启滑梯口摄像头预览:" + gateView.getDeviceIp());
                 SlideDataCallBack gateCallBack = new SlideDataCallBack(new File(visitorContext, "gate.tmp"));
                 NativeLong lRealPlayHandle_gate = hcsdkHandler.preView(gateView, gateCallBack);
-                for(int i=0;i<config.getGateDuration()/1000;i++){
+                double farDuration = config.getDuration1()/1000.0;
+                double io_module_delayDuration = config.getIo_module_delayTime()/1000.0;
+                double xuanma_ready = config.getXuanma_ready()/1000.0;
+                double viewDuration = farDuration+io_module_delayDuration+xuanma_ready+config.getGateMax();
+                for(int i=0;i < viewDuration+1;i++){
                     if(glissadeFlag){
                         glissadeMode = 1;
                         break;

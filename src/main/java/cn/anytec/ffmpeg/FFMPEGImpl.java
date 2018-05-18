@@ -102,40 +102,6 @@ public class FFMPEGImpl implements FFMPEGService {
         return false;
     }
 
-    @Override
-    public boolean cutEnd(File source, File output,double endDuration ,boolean isCover) {
-        FewMediaInfo info = getMediaInfo(source);
-        if(info == null){
-            logger.error("无效输入："+source);
-            return false;
-        }
-        if(!isCover && output.exists()){
-            logger.warn("输出文件已存在");
-            return false;
-        }
-        logger.info(info.getDuration()+"--"+endDuration);
-        while (runtimeLocal.isAlive()){
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        double t = info.getDuration()-endDuration;
-        if(t<0){
-            t = 8.0;
-        }
-        logger.debug(runtimeLocal.execute(new String[]{
-                "ffmpeg", "-ss","0","-t",Double.valueOf(t).toString(),
-                "-i",source.getAbsolutePath(),
-                "-c:v","libx264","-c:a","aac","-strict","experimental","-b:a","98k",
-                "-y",output.getAbsolutePath()
-        }));
-        if(output.exists()){
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public boolean changeFps(File source, File output, Integer fps, boolean isCover) {

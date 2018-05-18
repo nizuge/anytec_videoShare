@@ -47,7 +47,7 @@ video:
     duration: 5000
   #滑梯口摄像机
   gate:
-    duration: 4000
+    max: 10
   #近景视频
   close:
   #拍摄时长
